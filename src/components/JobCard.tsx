@@ -25,22 +25,31 @@ export default function JobCard({ id, title, location, description }: JobCardPro
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-gray-900 text-gray-100 p-8 rounded-xl w-11/12 max-w-lg relative">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-gray-900 text-gray-100 rounded-xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto relative p-8">
+            {/* Close button */}
             <button
               onClick={() => setOpen(false)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-100 text-xl"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-100 text-2xl font-bold"
             >
               ✕
             </button>
 
-            <h2 className="text-2xl font-bold mb-2">{title}</h2>
-            <p className="text-gray-400 mb-2">Байршил: {location}</p>
-            <p className="text-gray-300 mb-6">{description}</p>
+            {/* Title */}
+            <h2 className="text-3xl font-bold mb-3">{title}</h2>
 
-            <button className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded-md font-semibold transition">
-              Өргөдөл илгээх
-            </button>
+            {/* Location */}
+            <p className="text-gray-400 italic mb-4">Байршил: {location}</p>
+
+            {/* Description */}
+            <div className="text-gray-300 mb-6 whitespace-pre-line">{description}</div>
+
+            {/* Apply button */}
+            <div className="flex justify-center">
+              <button className="bg-blue-500 hover:bg-blue-600 px-8 py-3 rounded-md font-semibold transition">
+                Өргөдөл илгээх
+              </button>
+            </div>
           </div>
         </div>
       )}

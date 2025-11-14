@@ -35,7 +35,7 @@ export default function HeroSection() {
             🧑‍🔧 Ажил хайгч
           </Link>
           <Link
-            href="/employer"
+            href="/employer/auth"
             className="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 rounded-full text-lg font-semibold shadow-lg transition"
           >
             🏢 Ажил олгогч

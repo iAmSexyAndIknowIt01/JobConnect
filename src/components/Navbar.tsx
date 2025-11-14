@@ -18,6 +18,7 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
   // Одоогийн хуудас шалгах
   const isHomePage = pathname === "/";
   const isJobsPage = pathname === "/jobs";
+  const isEmployerAuthPage = pathname === "/employer/auth";
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-lg border-b border-white/20">
@@ -43,7 +44,7 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
             </>
           )}
 
-          {!isHomePage && (
+          {!isHomePage && !isEmployerAuthPage &&(
             <>
               {isLoggedIn ? (
                 <div className="relative">
