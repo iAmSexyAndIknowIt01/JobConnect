@@ -8,7 +8,7 @@ import JobModal from "@/components/JobModal";
 
 // Ажлын объектын бүтцийг тодорхойлсон interface (өмнөхтэй ижил)
 interface Job {
-  id: number;
+  id: string | number;
   title: string;
   location: string;
   description: string;

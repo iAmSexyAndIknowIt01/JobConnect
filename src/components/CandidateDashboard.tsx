@@ -149,7 +149,7 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ onLogout }) => 
                 </div>
                 
                 <h4 className="text-md font-semibold mt-2 mb-2 text-gray-200">Ур чадварууд:</h4>
-                <div className="flex flex-wrap gap-2 mb-4 flex-grow">
+                <div className="flex flex-wrap gap-2 mb-4 grow">
                   {candidate.skills.map((skill, index) => (
                     <span key={index} className="px-3 py-1 bg-gray-700 text-xs text-gray-300 rounded-full border border-gray-600 transition hover:bg-emerald-600 hover:text-white cursor-default">
                       {skill}
