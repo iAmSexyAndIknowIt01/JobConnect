@@ -58,7 +58,7 @@ const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
           
           <div className="pt-4">
             <button className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 font-semibold text-lg">
-              Ажилд бүртгүүлэх
+              Ажилд хүсэлт илгээх
             </button>
           </div>
         </div>

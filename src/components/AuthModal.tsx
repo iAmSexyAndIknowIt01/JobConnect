@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import SuccessModal from "./SuccessModal";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -211,24 +212,16 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
       </div>
 
       {/* Register Success Modal */}
-      {showRegisterSuccessModal && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-[fadeInUp_0.4s_ease-out]">
-          <div className="bg-green-500 text-white rounded-xl p-8 max-w-sm w-11/12 text-center shadow-2xl">
-            <h3 className="text-2xl font-bold mb-2">Амжилттай бүртгүүллээ!</h3>
-            <p>Одоо нэвтрэх боломжтой.</p>
-          </div>
-        </div>
-      )}
+      <SuccessModal
+        isOpen={showRegisterSuccessModal}
+        message="Амжилттай бүртгүүллээ! Одоо нэвтрэх боломжтой."
+      />
 
       {/* Login Success Modal */}
-      {showLoginSuccessModal && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-[fadeInUp_0.4s_ease-out]">
-          <div className="bg-green-500 text-white rounded-xl p-8 max-w-sm w-11/12 text-center shadow-2xl">
-            <h3 className="text-2xl font-bold mb-2">Амжилттай нэвтэрлээ!</h3>
-            <p>Сайхан өдөр өнгөрүүлээрэй.</p>
-          </div>
-        </div>
-      )}
+      <SuccessModal
+        isOpen={showLoginSuccessModal}
+        message="Амжилттай нэвтэрлээ! Сайхан өдөр өнгөрүүлээрэй."
+      />
     </>
   );
 }

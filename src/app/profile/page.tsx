@@ -1,10 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import SuccessModal from "@/components/SuccessModal";
 
 export default function ProfilePage() {
+  // ---------------------------
+  // VIEW or EDIT MODE
+  // ---------------------------
   const [isEditing, setIsEditing] = useState(false);
 
+  // ---------------------------
+  // Multi-step control
+  // ---------------------------
+  const [step, setStep] = useState(1);
+
+  const next = () => setStep((s) => s + 1);
+  const prev = () => setStep((s) => s - 1);
+
+  // ---------------------------
+  // Profile fields
+  // ---------------------------
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [lastName, setLastName] = useState("Бат");
   const [firstName, setFirstName] = useState("Болд");
   const [email, setEmail] = useState("test@gmail.com");
@@ -15,9 +31,17 @@ export default function ProfilePage() {
   const [experience, setExperience] = useState("2 жил программистээр ажилласан");
   const [message, setMessage] = useState("Өөрийн тухай нэмэлт мэдээлэл");
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
+  // ---------------------------
+  // SUCCESS MODAL
+  // ---------------------------
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // ---------------------------
+  // Save final data
+  // ---------------------------
+  const handleSubmit = () => {
     const data = {
+      profileImage,
       lastName,
       firstName,
       email,
@@ -28,193 +52,259 @@ export default function ProfilePage() {
       experience,
       message,
     };
-    console.log("Профайл мэдээлэл хадгалагдсан:", data);
-    alert("Мэдээлэл амжилттай хадгалагдлаа!");
+
+    console.log("Profile Saved:", data);
+
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 1500);
+
+    // Exit edit mode
     setIsEditing(false);
+    setStep(1);
   };
 
   return (
-    <div className="w-full bg-gray-900 text-gray-100 rounded-xl shadow-lg p-8">
-        <div className="max-w-xl mx-auto mt-24 bg-gray-800 text-gray-100 rounded-xl shadow-lg p-8">
-            <h1 className="text-3xl font-bold mb-6 text-center">
-            Ажил хайгчийн мэдээлэл
-            </h1>
+    <div className="w-full min-h-screen bg-gray-900 text-gray-100 p-6 flex justify-center">
+      <div className="max-w-2xl w-full bg-gray-800 border border-gray-700 rounded-xl p-10 mt-16 shadow-2xl">
+        
+        <h1 className="text-3xl font-bold text-center mb-10">
+          Ажил хайгчийн профайл
+        </h1>
 
-        <form id="profileForm" onSubmit={handleSave} className="space-y-5">
-            {/* Овог ба Нэр */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label className="block mb-2 text-sm font-medium">Овог</label>
-                <input
-                type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                readOnly={!isEditing}
-                className={`w-full p-3 rounded-md border ${
-                    isEditing
-                    ? "bg-gray-800 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    : "bg-gray-700 border-gray-600 cursor-not-allowed"
-                }`}
-                />
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium">Нэр</label>
-                <input
-                type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                readOnly={!isEditing}
-                className={`w-full p-3 rounded-md border ${
-                    isEditing
-                    ? "bg-gray-800 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    : "bg-gray-700 border-gray-600 cursor-not-allowed"
-                }`}
-                />
-            </div>
+        {/* -------------------------------------
+                VIEW MODE (DEFAULT)
+        -------------------------------------- */}
+        {!isEditing && (
+          <div>
+            {/* Profile Image */}
+            <div className="flex flex-col items-center mb-8">
+              <img
+                src={
+                  profileImage ??
+                  "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                }
+                className="w-40 h-40 rounded-full object-cover border-4 border-gray-600 shadow-lg"
+              />
+
+              <p className="text-gray-400 mt-4">Профайл зураг</p>
             </div>
 
-            {/* Имэйл */}
-            <div>
-            <label className="block mb-2 text-sm font-medium">Имэйл</label>
-            <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                readOnly={!isEditing}
-                className={`w-full p-3 rounded-md border ${
-                isEditing
-                    ? "bg-gray-800 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    : "bg-gray-700 border-gray-600 cursor-not-allowed"
-                }`}
-            />
-            </div>
+            {/* Text Info */}
+            <ViewRow label="Овог" value={lastName} />
+            <ViewRow label="Нэр" value={firstName} />
+            <ViewRow label="Имэйл" value={email} />
+            <ViewRow label="Утас" value={phone} />
+            <ViewRow label="Хаяг" value={address} />
+            <ViewRow label="Ур чадвар" value={skills} />
+            <ViewRow label="Япон хэл" value={japaneseLevel} />
+            <ViewRow label="Ажлын туршлага" value={experience} />
+            <ViewRow label="Нэмэлт мэдээлэл" value={message} />
 
-            {/* Утас */}
-            <div>
-            <label className="block mb-2 text-sm font-medium">Утасны дугаар</label>
-            <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                readOnly={!isEditing}
-                className={`w-full p-3 rounded-md border ${
-                isEditing
-                    ? "bg-gray-800 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    : "bg-gray-700 border-gray-600 cursor-not-allowed"
-                }`}
-            />
-            </div>
-
-            {/* Хаяг */}
-            <div>
-            <label className="block mb-2 text-sm font-medium">Японд оршин суугаа хаяг</label>
-            <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                readOnly={!isEditing}
-                className={`w-full p-3 rounded-md border ${
-                isEditing
-                    ? "bg-gray-800 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    : "bg-gray-700 border-gray-600 cursor-not-allowed"
-                }`}
-            />
-            </div>
-
-            {/* Ур чадвар */}
-            <div>
-            <label className="block mb-2 text-sm font-medium">Ур чадвар</label>
-            <textarea
-                value={skills}
-                onChange={(e) => setSkills(e.target.value)}
-                readOnly={!isEditing}
-                rows={3}
-                className={`w-full p-3 rounded-md border ${
-                isEditing
-                    ? "bg-gray-800 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    : "bg-gray-700 border-gray-600 cursor-not-allowed"
-                }`}
-            ></textarea>
-            </div>
-
-            {/* Япон хэлний түвшин */}
-            <div>
-            <label className="block mb-2 text-sm font-medium">Япон хэлний мэдлэг</label>
-            <select
-                value={japaneseLevel}
-                onChange={(e) => setJapaneseLevel(e.target.value)}
-                disabled={!isEditing}
-                className={`w-full p-3 rounded-md border ${
-                isEditing
-                    ? "bg-gray-800 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    : "bg-gray-700 border-gray-600 cursor-not-allowed"
-                }`}
-            >
-                <option value="N1">N1</option>
-                <option value="N2">N2</option>
-                <option value="N3">N3</option>
-                <option value="N4">N4</option>
-                <option value="N5">N5</option>
-                <option value="Байхгүй">Байхгүй</option>
-            </select>
-            </div>
-
-            {/* Ажлын туршлага */}
-            <div>
-            <label className="block mb-2 text-sm font-medium">Ажлын туршлага</label>
-            <textarea
-                value={experience}
-                onChange={(e) => setExperience(e.target.value)}
-                readOnly={!isEditing}
-                rows={3}
-                className={`w-full p-3 rounded-md border ${
-                isEditing
-                    ? "bg-gray-800 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    : "bg-gray-700 border-gray-600 cursor-not-allowed"
-                }`}
-            ></textarea>
-            </div>
-
-            {/* Нэмэлт мэдээлэл */}
-            <div>
-            <label className="block mb-2 text-sm font-medium">Нэмэлт мэдээлэл</label>
-            <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                readOnly={!isEditing}
-                rows={3}
-                className={`w-full p-3 rounded-md border ${
-                isEditing
-                    ? "bg-gray-800 border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    : "bg-gray-700 border-gray-600 cursor-not-allowed"
-                }`}
-            ></textarea>
-            </div>
-        </form>
-
-        {/* Засварлах / Хадгалах товч (Засварлах товч form-с гадна) */}
-        <div className="flex justify-end gap-4 mt-4">
-            {!isEditing && (
-            <button
-                type="button"
+            {/* EDIT BUTTON */}
+            <div className="flex justify-center mt-10">
+              <button
                 onClick={() => setIsEditing(true)}
-                className="px-6 py-2 bg-green-500 hover:bg-green-600 rounded-md font-semibold transition"
-            >
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold"
+              >
                 Засварлах
-            </button>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* -------------------------------------
+                EDIT MODE → MULTI STEP FORM
+        -------------------------------------- */}
+        {isEditing && (
+          <>
+            {/* STEP INDICATOR */}
+            <div className="flex justify-center gap-4 mb-10">
+              {[1, 2, 3, 4].map((s) => (
+                <div
+                  key={s}
+                  className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold 
+                  ${step === s ? "bg-blue-600" : "bg-gray-600 opacity-50"}`}
+                >
+                  {s}
+                </div>
+              ))}
+            </div>
+
+            {/* STEP 1 – IMAGE */}
+            {step === 1 && (
+              <div className="flex flex-col items-center">
+                <div className="relative">
+                  <img
+                    src={
+                      profileImage ??
+                      "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                    }
+                    className="w-40 h-40 rounded-full object-cover border-4 border-gray-600"
+                  />
+
+                  <label className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 p-2 rounded-full cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) setProfileImage(URL.createObjectURL(file));
+                      }}
+                      className="hidden"
+                    />
+                    📷
+                  </label>
+                </div>
+
+                <button
+                  onClick={next}
+                  className="mt-8 bg-blue-600 px-6 py-2 rounded-lg hover:bg-blue-700"
+                >
+                  Дараах
+                </button>
+              </div>
             )}
-            {isEditing && (
-            <button
-                type="submit"
-                form="profileForm"
-                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-md font-semibold transition"
-            >
-                Хадгалах
-            </button>
+
+            {/* STEP 2 – BASIC INFO */}
+            {step === 2 && (
+              <div className="space-y-6">
+                <InputField label="Овог" value={lastName} setValue={setLastName} />
+                <InputField label="Нэр" value={firstName} setValue={setFirstName} />
+                <InputField label="Имэйл" value={email} setValue={setEmail} />
+                <InputField label="Утас" value={phone} setValue={setPhone} />
+                <InputField label="Хаяг" value={address} setValue={setAddress} />
+
+                <Buttons prev={prev} next={next} />
+              </div>
             )}
-        </div>
-        </div>
+
+            {/* STEP 3 – SKILLS */}
+            {step === 3 && (
+              <div className="space-y-6">
+                <TextAreaField
+                  label="Ур чадвар"
+                  value={skills}
+                  setValue={setSkills}
+                />
+
+                <div>
+                  <label className="block mb-2">Япон хэлний түвшин</label>
+                  <select
+                    value={japaneseLevel}
+                    onChange={(e) => setJapaneseLevel(e.target.value)}
+                    className="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg"
+                  >
+                    <option>N1</option>
+                    <option>N2</option>
+                    <option>N3</option>
+                    <option>N4</option>
+                    <option>N5</option>
+                    <option>Байхгүй</option>
+                  </select>
+                </div>
+
+                <TextAreaField
+                  label="Ажлын туршлага"
+                  value={experience}
+                  setValue={setExperience}
+                />
+
+                <Buttons prev={prev} next={next} />
+              </div>
+            )}
+
+            {/* STEP 4 – SUMMARY */}
+            {step === 4 && (
+              <div>
+                <h2 className="text-xl font-bold mb-4">Дүгнэлт</h2>
+
+                <ViewRow label="Овог" value={lastName} />
+                <ViewRow label="Нэр" value={firstName} />
+                <ViewRow label="Имэйл" value={email} />
+                <ViewRow label="Утас" value={phone} />
+                <ViewRow label="Хаяг" value={address} />
+                <ViewRow label="Ур чадвар" value={skills} />
+                <ViewRow label="Япон хэл" value={japaneseLevel} />
+                <ViewRow label="Туршлага" value={experience} />
+                <ViewRow label="Нэмэлт мэдээлэл" value={message} />
+
+                <div className="flex justify-between mt-8">
+                  <button
+                    onClick={prev}
+                    className="px-6 py-2 bg-gray-700 rounded"
+                  >
+                    Буцах
+                  </button>
+
+                  <button
+                    onClick={handleSubmit}
+                    className="px-6 py-2 bg-green-600 rounded hover:bg-green-700"
+                  >
+                    Хадгалах
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      <SuccessModal
+        isOpen={showSuccess}
+        message="Мэдээлэл амжилттай хадгалагдлаа!"
+      />
     </div>
-    
+  );
+}
+
+/* ----------------------------------------------------------
+                      REUSABLE COMPONENTS
+----------------------------------------------------------- */
+
+function ViewRow({ label, value }: any) {
+  return (
+    <div className="border-b border-gray-700 py-3">
+      <div className="text-gray-400 text-sm">{label}</div>
+      <div className="text-white font-medium">{value}</div>
+    </div>
+  );
+}
+
+function InputField({ label, value, setValue }: any) {
+  return (
+    <div>
+      <label className="block mb-2">{label}</label>
+      <input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        className="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg"
+      />
+    </div>
+  );
+}
+
+function TextAreaField({ label, value, setValue }: any) {
+  return (
+    <div>
+      <label className="block mb-2">{label}</label>
+      <textarea
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        className="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg"
+      />
+    </div>
+  );
+}
+
+function Buttons({ prev, next }: any) {
+  return (
+    <div className="flex justify-between mt-6">
+      <button onClick={prev} className="px-6 py-2 bg-gray-700 rounded">
+        Буцах
+      </button>
+      <button onClick={next} className="px-6 py-2 bg-blue-600 rounded">
+        Дараах
+      </button>
+    </div>
   );
 }
