@@ -60,7 +60,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
       }
     } else {
       if (password !== confirmPassword) {
-        setError("Нууц үг хоёр таарахгүй байна!");
+        setError("Нууц үг таарахгүй байна!");
         return;
       }
 

@@ -28,7 +28,7 @@ export default function RootLayout({
 
   // 🔹 Нэвтрэлт амжилттай болсон үед
   const handleLoginSuccess = () => {
-    alert("Амжилттай нэвтэрлээ ✅");
+    // alert("Амжилттай нэвтэрлээ ✅");
     setIsLoggedIn(true);
   };
 

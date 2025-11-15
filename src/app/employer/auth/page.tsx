@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
+// Ажил хайгчдын мэдээллийн самбарыг импортлоно
+import CandidateDashboard from "@/components/CandidateDashboard"; 
 
 export default function EmployerAuth() {
   const [isLogin, setIsLogin] = useState(true);
+  // Шинэ state: Ажил олгогч нэвтэрсэн эсэх
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
 
   // Form fields
   const [companyName, setCompanyName] = useState("");
@@ -14,28 +18,36 @@ export default function EmployerAuth() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setSuccessMessage("Амжилттай гарлаа.");
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSuccessMessage("");
+    setError("");
 
     if (isLogin) {
       // ✅ Нэвтрэх логик (жишээ)
-      if (email === "employer@test.com" && password === "test123") {
-        setSuccessMessage("Амжилттай нэвтэрлээ!");
+      if (email === "test@gmail.com" && password === "test") {
+        // Нэвтрэх амжилттай!
+        setIsLoggedIn(true); // Нэвтэрсэн төлөвийг true болгоно
+        setSuccessMessage("Амжилттай нэвтэрлээ! Таны самбар руу шилжиж байна...");
         setError("");
       } else {
         setError("Имэйл эсвэл нууц үг буруу байна!");
-        setSuccessMessage("");
+        setIsLoggedIn(false);
       }
     } else {
       // ✅ Бүртгүүлэх логик
       if (password !== confirmPassword) {
         setError("Нууц үг таарахгүй байна!");
-        setSuccessMessage("");
         return;
       }
 
-      setSuccessMessage(`Амжилттай бүртгүүллээ! ${companyName} компани`);
-      setError("");
+      setSuccessMessage(`Амжилттай бүртгүүллээ! ${companyName} компани. Одоо нэвтэрнэ үү.`);
+      
       // Формыг цэвэрлэх
       setCompanyName("");
       setEmail("");
@@ -44,7 +56,19 @@ export default function EmployerAuth() {
       setIsLogin(true); // нэвтрэх рүү шилжих
     }
   };
+  
+  // ------------------------------------------------------------------
+  // 1. Хэрэв Нэвтэрсэн бол Ажил хайгчдын самбарыг харуулна
+  // ------------------------------------------------------------------
+  if (isLoggedIn) {
+    return (
+      <CandidateDashboard onLogout={handleLogout} />
+    );
+  }
 
+  // ------------------------------------------------------------------
+  // 2. Нэвтрээгүй бол Нэвтрэх/Бүртгүүлэх формыг харуулна
+  // ------------------------------------------------------------------
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-4">
       <form
@@ -55,6 +79,7 @@ export default function EmployerAuth() {
           {isLogin ? "Ажил олгогч нэвтрэх" : "Ажил олгогч бүртгүүлэх"}
         </h2>
 
+        {/* ... Формын input-ууд (Өмнөхтэй ижил) ... */}
         {!isLogin && (
           <input
             type="text"
