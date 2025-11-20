@@ -119,24 +119,44 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
         if (profileError) {
           console.error(profileError);
           setError("Профайл үүсгэхэд асуудал гарлаа!");
+          throw profileError;
+        }
+
+        // 2. Insert into user_skills (skill info)
+        const { error: skillError } = await supabase
+          .from("user_skills")
+          .insert([
+            {
+              id: userAccountId,
+              user_id: userAccountId, // FK → user_accounts.id
+              skills: null,
+              japanese_level: null,
+              experience: null,
+              other: null,
+            }
+          ]);
+
+        if (skillError) {
+          console.error(skillError);
+          setError("Ур чадвар үүсгэхэд асуудал гарлаа!");
           return;
         }
 
 
       }catch(error){
-        console.log("Бүртгүүлэхэд алдаа гарлаа:", error);
+        console.error("Бүртгүүлэхэд алдаа гарлаа:", error);
         setError("Бүртгүүлэхэд алдаа гарлаа. Дахин оролдоно уу.");
         return;
       }
       
-      console.log("Бүртгүүлэх:", {
-        firstName,
-        lastName,
-        phone,
-        address,
-        email,
-        password,
-      });
+      // console.log("Бүртгүүлэх:", {
+      //   firstName,
+      //   lastName,
+      //   phone,
+      //   address,
+      //   email,
+      //   password,
+      // });
 
       setError("");
       setShowRegisterSuccessModal(true); // ✅ Бүртгүүлэх success
