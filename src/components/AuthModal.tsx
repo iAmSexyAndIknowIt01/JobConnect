@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import SuccessModal from "./SuccessModal";
+import { supabase } from "@/lib/supabaseClients";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -43,21 +44,39 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
     setAddress("");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (isLogin) {
-      if (email === "test@gmail.com" && password === "test") {
+      try {
+        const { data: user, error } = await supabase
+          .from("user_accounts")
+          .select("*")
+          .eq("email", email)
+          .eq("hashed_password", password) // ⚠️ plaintext check
+          .single();
+
+        if (error || !user) {
+          console.log("Нэвтрэх алдаа:", error);
+          console.log("user", user);
+          setError("Имэйл эсвэл нууц үг буруу байна!");
+          return;
+        }
+
+        // Амжилттай нэвтэрлээ
         setError("");
-        setShowLoginSuccessModal(true); // ✅ Амжилттай нэвтрэх
+        setShowLoginSuccessModal(true);
+
         setTimeout(() => {
           setShowLoginSuccessModal(false);
-          onLoginSuccess();
+          onLoginSuccess(); // таны род дотор байгаа callback
           onClose();
           resetForm();
         }, 1500);
-      } else {
-        setError("Имэйл эсвэл нууц үг буруу байна!");
+
+      } catch (err) {
+        console.error(err);
+        setError("Серверийн алдаа гарлаа.");
       }
     } else {
       if (password !== confirmPassword) {
@@ -65,6 +84,51 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
         return;
       }
 
+      try{
+        // Insert into user_accounts
+        const{ data: accountData, error: accountError } = await supabase
+        .from('user_accounts')
+        .insert([
+          {
+            email: email,
+            hashed_password: password,
+          }
+        ])
+        .select("id");
+
+        if(accountError){
+          console.log("Account insert error:", accountError);
+          throw accountError;
+        }
+
+        const userAccountId = accountData[0].id;
+
+        // 2. Insert into user_profiles (profile info)
+        const { error: profileError } = await supabase
+          .from("user_profiles")
+          .insert([
+            {
+              id: userAccountId, // FK → user_accounts.id
+              first_name: firstName,
+              last_name: lastName,
+              phone: phone,
+              address: address,
+            }
+          ]);
+
+        if (profileError) {
+          console.error(profileError);
+          setError("Профайл үүсгэхэд асуудал гарлаа!");
+          return;
+        }
+
+
+      }catch(error){
+        console.log("Бүртгүүлэхэд алдаа гарлаа:", error);
+        setError("Бүртгүүлэхэд алдаа гарлаа. Дахин оролдоно уу.");
+        return;
+      }
+      
       console.log("Бүртгүүлэх:", {
         firstName,
         lastName,
@@ -87,7 +151,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
   return (
     <>
       {/* Main Auth Modal */}
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 backdrop-blur-sm">
         <div className="relative bg-gray-900 text-gray-100 rounded-xl p-8 w-11/12 max-w-md shadow-2xl">
           <button
             onClick={onClose}
@@ -220,7 +284,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
       {/* Login Success Modal */}
       <SuccessModal
         isOpen={showLoginSuccessModal}
-        message="Амжилттай нэвтэрлээ! Сайхан өдөр өнгөрүүлээрэй."
+        message="Амжилттай нэвтэрлээ! Өдрийг сайхан өнгөрүүлээрэй."
       />
     </>
   );

@@ -1,25 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { supabase } from "@/lib/supabaseClients"; // supabaseClient.ts-с import
 import SuccessModal from "@/components/SuccessModal";
 
 export default function ProfilePage() {
-  // ---------------------------
-  // VIEW or EDIT MODE
-  // ---------------------------
   const [isEditing, setIsEditing] = useState(false);
-
-  // ---------------------------
-  // Multi-step control
-  // ---------------------------
   const [step, setStep] = useState(1);
 
   const next = () => setStep((s) => s + 1);
   const prev = () => setStep((s) => s - 1);
 
-  // ---------------------------
-  // Profile fields
-  // ---------------------------
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [lastName, setLastName] = useState("Бат");
   const [firstName, setFirstName] = useState("Болд");
@@ -31,65 +22,76 @@ export default function ProfilePage() {
   const [experience, setExperience] = useState("2 жил программистээр ажилласан");
   const [message, setMessage] = useState("Өөрийн тухай нэмэлт мэдээлэл");
 
-  // ---------------------------
-  // SUCCESS MODAL
-  // ---------------------------
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // ---------------------------
-  // Save final data
-  // ---------------------------
-  const handleSubmit = () => {
-    const data = {
-      profileImage,
-      lastName,
-      firstName,
-      email,
-      phone,
-      address,
-      skills,
-      japaneseLevel,
-      experience,
-      message,
-    };
 
-    console.log("Profile Saved:", data);
+ // ---------------------------
+// SAVE PROFILE (UPDATE ONLY)
+// ---------------------------
+const handleSubmit = async () => {
+  // 1) Supabase Auth → user.id авах
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 1500);
+  if (userError || !user) {
+    alert("Хэрэглэгчийн мэдээлэл олдсонгүй!");
+    return;
+  }
 
-    // Exit edit mode
-    setIsEditing(false);
-    setStep(1);
+  const userId = user.id; // ← UPDATE хийх гол түлхүүр ID
+
+  const data = {
+    profile_image: profileImage,
+    last_name: lastName,
+    first_name: firstName,
+    email,
+    phone,
+    address,
+    skills,
+    japanese_level: japaneseLevel,
+    experience,
+    message,
   };
+
+  // 2) UPDATE хийх
+  const { error } = await supabase
+    .from("users")
+    .update(data)
+    .eq("id", userId);
+
+  if (error) {
+    console.error("Error saving profile:", error.message);
+    alert("Профайл хадгалахад алдаа гарлаа!");
+    return;
+  }
+
+  // SUCCESS
+  setShowSuccess(true);
+  setTimeout(() => setShowSuccess(false), 1500);
+
+  setIsEditing(false);
+  setStep(1);
+};
 
   return (
     <div className="w-full min-h-screen bg-gray-900 text-gray-100 p-6 flex justify-center">
       <div className="max-w-2xl w-full bg-gray-800 border border-gray-700 rounded-xl p-10 mt-16 shadow-2xl">
-        
         <h1 className="text-3xl font-bold text-center mb-10">
           Ажил хайгчийн профайл
         </h1>
 
-        {/* -------------------------------------
-                VIEW MODE (DEFAULT)
-        -------------------------------------- */}
         {!isEditing && (
           <div>
-            {/* Profile Image */}
             <div className="flex flex-col items-center mb-8">
               <img
-                src={
-                  profileImage ??
-                  "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                }
+                src={profileImage ?? "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
                 className="w-40 h-40 rounded-full object-cover border-4 border-gray-600 shadow-lg"
               />
-
               <p className="text-gray-400 mt-4">Профайл зураг</p>
             </div>
 
-            {/* Text Info */}
             <ViewRow label="Овог" value={lastName} />
             <ViewRow label="Нэр" value={firstName} />
             <ViewRow label="Имэйл" value={email} />
@@ -100,7 +102,6 @@ export default function ProfilePage() {
             <ViewRow label="Ажлын туршлага" value={experience} />
             <ViewRow label="Нэмэлт мэдээлэл" value={message} />
 
-            {/* EDIT BUTTON */}
             <div className="flex justify-center mt-10">
               <button
                 onClick={() => setIsEditing(true)}
@@ -112,12 +113,8 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* -------------------------------------
-                EDIT MODE → MULTI STEP FORM
-        -------------------------------------- */}
         {isEditing && (
           <>
-            {/* STEP INDICATOR */}
             <div className="flex justify-center gap-4 mb-10">
               {[1, 2, 3, 4].map((s) => (
                 <div
@@ -130,18 +127,13 @@ export default function ProfilePage() {
               ))}
             </div>
 
-            {/* STEP 1 – IMAGE */}
             {step === 1 && (
               <div className="flex flex-col items-center">
                 <div className="relative">
                   <img
-                    src={
-                      profileImage ??
-                      "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                    }
+                    src={profileImage ?? "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
                     className="w-40 h-40 rounded-full object-cover border-4 border-gray-600"
                   />
-
                   <label className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 p-2 rounded-full cursor-pointer">
                     <input
                       type="file"
@@ -165,7 +157,6 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* STEP 2 – BASIC INFO */}
             {step === 2 && (
               <div className="space-y-6">
                 <InputField label="Овог" value={lastName} setValue={setLastName} />
@@ -178,14 +169,9 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* STEP 3 – SKILLS */}
             {step === 3 && (
               <div className="space-y-6">
-                <TextAreaField
-                  label="Ур чадвар"
-                  value={skills}
-                  setValue={setSkills}
-                />
+                <TextAreaField label="Ур чадвар" value={skills} setValue={setSkills} />
 
                 <div>
                   <label className="block mb-2">Япон хэлний түвшин</label>
@@ -203,17 +189,12 @@ export default function ProfilePage() {
                   </select>
                 </div>
 
-                <TextAreaField
-                  label="Ажлын туршлага"
-                  value={experience}
-                  setValue={setExperience}
-                />
+                <TextAreaField label="Ажлын туршлага" value={experience} setValue={setExperience} />
 
                 <Buttons prev={prev} next={next} />
               </div>
             )}
 
-            {/* STEP 4 – SUMMARY */}
             {step === 4 && (
               <div>
                 <h2 className="text-xl font-bold mb-4">Дүгнэлт</h2>
@@ -229,17 +210,11 @@ export default function ProfilePage() {
                 <ViewRow label="Нэмэлт мэдээлэл" value={message} />
 
                 <div className="flex justify-between mt-8">
-                  <button
-                    onClick={prev}
-                    className="px-6 py-2 bg-gray-700 rounded"
-                  >
+                  <button onClick={prev} className="px-6 py-2 bg-gray-700 rounded">
                     Буцах
                   </button>
 
-                  <button
-                    onClick={handleSubmit}
-                    className="px-6 py-2 bg-green-600 rounded hover:bg-green-700"
-                  >
+                  <button onClick={handleSubmit} className="px-6 py-2 bg-green-600 rounded hover:bg-green-700">
                     Хадгалах
                   </button>
                 </div>
@@ -249,18 +224,12 @@ export default function ProfilePage() {
         )}
       </div>
 
-      <SuccessModal
-        isOpen={showSuccess}
-        message="Мэдээлэл амжилттай хадгалагдлаа!"
-      />
+      <SuccessModal isOpen={showSuccess} message="Мэдээлэл амжилттай хадгалагдлаа!" />
     </div>
   );
 }
 
-/* ----------------------------------------------------------
-                      REUSABLE COMPONENTS
------------------------------------------------------------ */
-
+/* Reusable Components */
 function ViewRow({ label, value }: any) {
   return (
     <div className="border-b border-gray-700 py-3">
