@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useState } from "react";
 import AuthModal from "@/components/AuthModal";
+import { Analytics } from '@vercel/analytics/next';
 
 // export const metadata: Metadata = {
 //   title: "JobMatch Japan | Таны ур чадварт тохирсон ажил",
@@ -43,7 +44,7 @@ export default function RootLayout({
         />
 
         {/* Гол контент */}
-        <main className="flex-grow">{children}</main>
+        <main className="grow">{children}<Analytics /></main>
 
         {/* Auth Modal */}
         <AuthModal
