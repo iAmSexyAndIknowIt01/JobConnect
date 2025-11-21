@@ -20,6 +20,19 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
   const isJobsPage = pathname === "/jobs";
   const isEmployerAuthPage = pathname === "/employer/auth";
 
+  const scrollToAbout = () => {
+    const section = document.getElementById("about-us");
+    if (section) section.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleScrollToContact = () => {
+    const element = document.getElementById("contact-us");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-lg border-b border-white/20">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -35,12 +48,16 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
               {/* <Link href="/jobs" className="hover:text-blue-400 transition">
                 Ажил
               </Link> */}
-              <Link href="/about" className="hover:text-blue-400 transition">
-                Бидний тухай
-              </Link>
-              <Link href="/contact" className="hover:text-blue-400 transition">
-                Холбоо барих
-              </Link>
+              <div className="max-w-6xl mx-auto px-3 py-1 flex gap-6">
+                  <button onClick={scrollToAbout} className="hover:text-blue-600">
+                     Бидний тухай
+                  </button>
+              </div>
+              <div className="max-w-6xl mx-auto px-3 py-1 flex gap-6">
+                  <button onClick={handleScrollToContact} className="hover:text-blue-600">
+                     Холбоо барих
+                  </button>
+              </div>
             </>
           )}
 
