@@ -62,6 +62,14 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
           setError("Имэйл эсвэл нууц үг буруу байна!");
           return;
         }
+        // --------------🔥 USER SESSION SAVE HERE -------------------
+        console.log("Амжилттай нэвтэрлээ:", user);
+        sessionStorage.setItem("userId", user.id);
+        const userId = sessionStorage.getItem("userId");
+        console.log("Амжилттай хадгаллаа sessionStorage:", userId);
+        // Хэрвээ тогтмол логин хадгалах бол localStorage ашиглаж болно
+        // localStorage.setItem("userId", user.id);
+        // -------------------------------------------------------------
 
         // Амжилттай нэвтэрлээ
         setError("");
