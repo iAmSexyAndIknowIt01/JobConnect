@@ -24,12 +24,12 @@ export default function ProfilePage() {
   const [other, setOther] = useState("");
 
   const [showSuccess, setShowSuccess] = useState(false);
-  const userId = sessionStorage.getItem("userId");
-
+  
   // ----------------------------------------
   // 1) LOAD PROFILE (SELECT 3 TABLES)
   // ----------------------------------------
   useEffect(() => {
+    const userId = sessionStorage.getItem("userId");
     const fetchProfile = async () => {
       // const {
       //   data: { user },
@@ -87,6 +87,7 @@ export default function ProfilePage() {
   // 2) SAVE PROFILE (UPDATE 3 TABLES)
   // ----------------------------------------
   const handleSubmit = async () => {
+    const userId = sessionStorage.getItem("userId");
     // const {
     //   data: { user },
     // } = await supabase.auth.getUser();
