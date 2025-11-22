@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import SuccessModal from "@/components/SuccessModal";
+import FailedModal from "@/components/FailedModal";
 
 interface Job {
   id: number | string;
@@ -19,16 +20,28 @@ interface JobModalProps {
 const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const [showError, setShowError] = useState(false);
+
+
   if (!isOpen) return null;
 
   const handleApply = () => {
-    // 1) Success modal гаргах
+    const userId = sessionStorage.getItem("userId");
+
+    console.log("User ID:", userId);
+    // ❌ Хэрэв хэрэглэгч нэвтрээгүй бол
+    if (!userId) {
+      setShowError(true);
+      setTimeout(() => setShowError(false), 1500);
+      return;
+    }
+
+    // ✅ Нэвтэрсэн → хүсэлт амжилттай илгээнэ
     setShowSuccess(true);
 
-    // 2) 1.5 секундийн дараа SuccessModal хаах + JobModal хаах
     setTimeout(() => {
       setShowSuccess(false);
-      onClose(); // ← JobModal хаагдана
+      onClose(); // JobModal хаагдана
     }, 1500);
   };
 
@@ -82,10 +95,16 @@ const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
         </div>
       </div>
 
-      {/* Success Message */}
+      {/* Хэрвээ нэвтрээгүй бол харуулах мэссеж */}
+      <FailedModal 
+        isOpen={showError}
+        message="Эхлээд нэвтэрнэ үү!"
+      />
+
+      {/* Амжилттай илгээсэн */}
       <SuccessModal
         isOpen={showSuccess}
-        message="Хүсэлт амжилттай илгээлээ!"
+        message="Ажилд хүсэлт амжилттай илгээлээ!"
       />
     </>
   );
