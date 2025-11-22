@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import JobList from "@/components/JobList";
+import JobListSkeleton from "@/components/JobListSkeleton"; // ✅ Тусдаа компонент import хийж байна
 import NewsFeed from "@/components/NewsFeed";
 import JobModal from "@/components/JobModal"; 
 import { supabase } from "@/lib/supabaseClients";
@@ -17,6 +18,7 @@ export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null); 
+  const [loading, setLoading] = useState(true); // Loading state
 
   // Pagination
   const [pageSize, setPageSize] = useState(5); // Default: 5
@@ -24,9 +26,14 @@ export default function JobsPage() {
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const { data, error } = await supabase.from("open_jobs").select("*").order('id', { ascending: true });
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("open_jobs")
+        .select("*")
+        .order("id", { ascending: true });
       if (error) console.error(error);
       else setJobs(data || []);
+      setLoading(false);
     };
     fetchJobs();
   }, []);
@@ -78,21 +85,28 @@ export default function JobsPage() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-7 gap-8">
         <section className="lg:col-span-5">
           <h2 className="text-3xl font-semibold mb-4 border-b border-gray-700 pb-2">Нээлттэй ажлын байрууд</h2>
-          <JobList jobs={jobsToShow} onViewJob={handleViewJob} />
 
-          {/* Pagination controls */}
-          <div className="flex justify-center mt-6 gap-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                className={`px-4 py-2 rounded-md ${page === currentPage ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-100"}`}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </button>
-            ))}
-          </div>
-          
+          {/* Loading болон JobList */}
+          {loading ? (
+            <JobListSkeleton count={pageSize} />
+          ) : (
+            <JobList jobs={jobsToShow} onViewJob={handleViewJob} />
+          )}
+
+          {/* Pagination */}
+          {!loading && (
+            <div className="flex justify-center mt-6 gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  className={`px-4 py-2 rounded-md ${page === currentPage ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-100"}`}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+          )}
         </section>
 
         <aside className="lg:col-span-2">
