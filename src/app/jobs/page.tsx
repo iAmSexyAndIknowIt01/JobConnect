@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import JobList from "@/components/JobList";
 import NewsFeed from "@/components/NewsFeed";
 // Шинээр JobModal-ийг импорт хийнэ
 import JobModal from "@/components/JobModal"; 
+import { supabase } from "@/lib/supabaseClients";
+
 
 // Ажлын объектын бүтцийг тодорхойлсон interface (өмнөхтэй ижил)
 interface Job {
@@ -15,13 +17,17 @@ interface Job {
 }
 
 export default function JobsPage() {
-  const [jobs] = useState<Job[]>([
-    { id: 1, title: "Программист", location: "Токио, Япон", description: "Бид Японд байрлах программист ажилд авна. Шаардлага: 3+ жилийн туршлага, React болон Node.js мэдлэгтэй байх. Ажлын цаг: 9:00-18:00. Цалин: 400,000-600,000 иен. Нэмэлт мэдээлэл: Даатгал, тээврийн зардал." },
-    { id: 2, title: "Веб хөгжүүлэгч", location: "Осака, Япон", description: "Веб хөгжүүлэгч хайж байна. Шаардлага: HTML, CSS, JavaScript-д сайн мэдлэгтэй, туршлагатай байх. Frontend/Backend аль аль нь боломжтой. Бүтэн цагийн ажлын байр." },
-    { id: 3, title: "Веб цэвэрлэгч", location: "Чиба, Япон", description: "Манай компанид веб цэвэрлэгч ажилд авна. Шаардлага: Анхан шатны компьютерийн мэдлэгтэй, хариуцлагатай байх. Цалин: 250,000 иен. Туршлага хамаарахгүй." },
-    { id: 4, title: "Веб мэдэхгүй", location: "Сайтама, Япон", description: "Веб мэдэхгүй ажилд авна. Шаардлага: Япон хэлний анхан шатны мэдлэгтэй, суралцах хүсэлтэй байх. Сургалттай тул туршлага шаардлагагүй. Цалин: 300,000 иен." },
-    // Дахин ажил нэмэх боломжтой
-  ]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      const { data, error } = await supabase.from("open_jobs").select("*");
+      if (error) console.error(error);
+      else setJobs(data || []);
+    };
+
+    fetchJobs();
+  }, []);
   
   // 1. Модал нээлттэй эсэхийг удирдах state
   const [isModalOpen, setIsModalOpen] = useState(false);
