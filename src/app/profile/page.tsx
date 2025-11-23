@@ -13,6 +13,8 @@ export default function ProfilePage() {
 
   // STATES
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileFile, setProfileFile] = useState<File | null>(null);
+
   const [lastName, setLastName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,42 +26,29 @@ export default function ProfilePage() {
   const [other, setOther] = useState("");
 
   const [showSuccess, setShowSuccess] = useState(false);
-  
-  // ----------------------------------------
-  // 1) LOAD PROFILE (SELECT 3 TABLES)
-  // ----------------------------------------
+
+  // LOAD PROFILE
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
     const fetchProfile = async () => {
-      // const {
-      //   data: { user },
-      // } = await supabase.auth.getUser();
-
-      // if (!user) return;
-      // const userId = user.id;
-      console.log("session-с userId:", userId);
-      // 1) user_profiles
       const { data: profile } = await supabase
         .from("user_profiles")
         .select("*")
         .eq("id", userId)
         .single();
 
-      // 2) user_accounts
       const { data: account } = await supabase
         .from("user_accounts")
         .select("email")
         .eq("id", userId)
         .single();
 
-      // 3) user_skills
       const { data: skill } = await supabase
         .from("user_skills")
         .select("*")
         .eq("id", userId)
         .single();
 
-      // set data to state
       if (profile) {
         setLastName(profile.last_name ?? "");
         setFirstName(profile.first_name ?? "");
@@ -68,10 +57,7 @@ export default function ProfilePage() {
         setProfileImage(profile.profile_image ?? null);
       }
 
-      if (account) {
-        setEmail(account.email ?? "");
-      }
-
+      if (account) setEmail(account.email ?? "");
       if (skill) {
         setSkills(skill.skills ?? "");
         setJapaneseLevel(skill.japanese_level ?? "");
@@ -84,22 +70,42 @@ export default function ProfilePage() {
   }, []);
 
   // ----------------------------------------
-  // 2) SAVE PROFILE (UPDATE 3 TABLES)
+  // 2) SAVE PROFILE (Correct Upload + Update)
   // ----------------------------------------
   const handleSubmit = async () => {
     const userId = sessionStorage.getItem("userId");
-    // const {
-    //   data: { user },
-    // } = await supabase.auth.getUser();
 
-    // if (!user) {
-    //   alert("Хэрэглэгчийн мэдээлэл олдсонгүй!");
-    //   return;
-    // }
+    let uploadedImageUrl = profileImage;
 
-    // const userId = user.id;
+    // --- IMAGE UPLOAD (Correct version) ---
+    if (profileFile) {
+      const fileExt = profileFile.name.split(".").pop();
+      const fileName = `${userId}-${Date.now()}.${fileExt}`;
+      const filePath = `profiles/${fileName}`; // folder inside bucket
 
-    // 1) UPDATE user_profiles
+      const { error: uploadError } = await supabase.storage
+        .from("profile_images")
+        .upload(filePath, profileFile, {
+          contentType: profileFile.type,
+          cacheControl: "3600",
+          upsert: false, // upload() cannot overwrite
+        });
+
+      if (uploadError) {
+        console.log("UPLOAD ERROR:", uploadError);
+        alert("Зураг upload хийхэд алдаа гарлаа!");
+        return;
+      }
+
+      // Public URL
+      const { data: publicUrlData } = supabase.storage
+        .from("profile_images")
+        .getPublicUrl(filePath);
+
+      uploadedImageUrl = publicUrlData.publicUrl;
+    }
+
+    // UPDATE user_profiles
     const { error: profileError } = await supabase
       .from("user_profiles")
       .update({
@@ -107,6 +113,7 @@ export default function ProfilePage() {
         first_name: firstName,
         phone,
         address,
+        profile_image: uploadedImageUrl,
       })
       .eq("id", userId);
 
@@ -116,12 +123,10 @@ export default function ProfilePage() {
       return;
     }
 
-    // 2) UPDATE user_accounts
+    // UPDATE user_accounts
     const { error: accountError } = await supabase
       .from("user_accounts")
-      .update({
-        email,
-      })
+      .update({ email })
       .eq("id", userId);
 
     if (accountError) {
@@ -130,7 +135,7 @@ export default function ProfilePage() {
       return;
     }
 
-    // 3) UPDATE user_skills
+    // UPDATE user_skills
     const { error: skillError } = await supabase
       .from("user_skills")
       .update({
@@ -150,7 +155,6 @@ export default function ProfilePage() {
     // SUCCESS
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 1500);
-
     setIsEditing(false);
     setStep(1);
   };
@@ -158,11 +162,10 @@ export default function ProfilePage() {
   return (
     <div className="w-full min-h-screen bg-gray-900 text-gray-100 p-6 flex justify-center">
       <div className="max-w-2xl w-full bg-gray-800 border border-gray-700 rounded-xl p-10 mt-16 shadow-2xl">
-        <h1 className="text-3xl font-bold text-center mb-10">
-          Ажил хайгчийн профайл
-        </h1>
 
-        {/* ---------------- VIEW MODE ---------------- */}
+        <h1 className="text-3xl font-bold text-center mb-10">Ажил хайгчийн профайл</h1>
+
+        {/* VIEW MODE */}
         {!isEditing && (
           <div>
             <div className="flex flex-col items-center mb-8">
@@ -197,7 +200,7 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* ---------------- EDIT MODE ---------------- */}
+        {/* EDIT MODE */}
         {isEditing && (
           <>
             <div className="flex justify-center gap-4 mb-10">
@@ -212,6 +215,7 @@ export default function ProfilePage() {
               ))}
             </div>
 
+            {/* STEP 1: IMAGE */}
             {step === 1 && (
               <div className="flex flex-col items-center">
                 <div className="relative">
@@ -228,7 +232,10 @@ export default function ProfilePage() {
                       accept="image/*"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) setProfileImage(URL.createObjectURL(file));
+                        if (file) {
+                          setProfileFile(file);
+                          setProfileImage(URL.createObjectURL(file));
+                        }
                       }}
                       className="hidden"
                     />
@@ -245,6 +252,7 @@ export default function ProfilePage() {
               </div>
             )}
 
+            {/* STEP 2 */}
             {step === 2 && (
               <div className="space-y-6">
                 <InputField label="Овог" value={lastName} setValue={setLastName} />
@@ -257,6 +265,7 @@ export default function ProfilePage() {
               </div>
             )}
 
+            {/* STEP 3 */}
             {step === 3 && (
               <div className="space-y-6">
                 <TextAreaField label="Ур чадвар" value={skills} setValue={setSkills} />
@@ -277,22 +286,14 @@ export default function ProfilePage() {
                   </select>
                 </div>
 
-                <TextAreaField
-                  label="Ажлын туршлага"
-                  value={experience}
-                  setValue={setExperience}
-                />
-
-                <TextAreaField
-                  label="Нэмэлт мэдээлэл"
-                  value={other}
-                  setValue={setOther}
-                />
+                <TextAreaField label="Ажлын туршлага" value={experience} setValue={setExperience} />
+                <TextAreaField label="Нэмэлт мэдээлэл" value={other} setValue={setOther} />
 
                 <Buttons prev={prev} next={next} />
               </div>
             )}
 
+            {/* STEP 4 */}
             {step === 4 && (
               <div>
                 <h2 className="text-xl font-bold mb-4">Дүгнэлт</h2>
@@ -325,10 +326,7 @@ export default function ProfilePage() {
         )}
       </div>
 
-      <SuccessModal
-        isOpen={showSuccess}
-        message="Мэдээлэл амжилттай хадгалагдлаа!"
-      />
+      <SuccessModal isOpen={showSuccess} message="Мэдээлэл амжилттай хадгалагдлаа!" />
     </div>
   );
 }
