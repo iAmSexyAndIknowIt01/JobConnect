@@ -57,7 +57,7 @@ export default function JobsPage() {
 
   return (
     <main className="min-h-screen bg-gray-900 text-gray-100 px-6 py-10 pt-32">
-      <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center">🧑‍🔧 Ажил хайгч</h1>
+      {/* <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center">🧑‍🔧 Ажил хайгч</h1> */}
 
       <section className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <input

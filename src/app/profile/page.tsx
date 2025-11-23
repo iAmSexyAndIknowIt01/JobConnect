@@ -24,6 +24,7 @@ export default function ProfilePage() {
   const [japaneseLevel, setJapaneseLevel] = useState("");
   const [experience, setExperience] = useState("");
   const [other, setOther] = useState("");
+  const [gender, setGender] = useState(""); // шинэ state хүйс
 
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -55,6 +56,7 @@ export default function ProfilePage() {
         setPhone(profile.phone ?? "");
         setAddress(profile.address ?? "");
         setProfileImage(profile.profile_image ?? null);
+        setGender(profile.gender ?? ""); // шинэ талбар
       }
 
       if (account) setEmail(account.email ?? "");
@@ -114,6 +116,7 @@ export default function ProfilePage() {
         phone,
         address,
         profile_image: uploadedImageUrl,
+        gender, // шинэ талбар
       })
       .eq("id", userId);
 
@@ -163,7 +166,7 @@ export default function ProfilePage() {
     <div className="w-full min-h-screen bg-gray-900 text-gray-100 p-6 flex justify-center">
       <div className="max-w-2xl w-full bg-gray-800 border border-gray-700 rounded-xl p-10 mt-16 shadow-2xl">
 
-        <h1 className="text-3xl font-bold text-center mb-10">Ажил хайгчийн профайл</h1>
+        <h1 className="text-3xl font-bold text-center mb-10">Профайл</h1>
 
         {/* VIEW MODE */}
         {!isEditing && (
@@ -181,6 +184,7 @@ export default function ProfilePage() {
 
             <ViewRow label="Овог" value={lastName} />
             <ViewRow label="Нэр" value={firstName} />
+            <ViewRow label="Хүйс" value={gender} />
             <ViewRow label="Имэйл" value={email} />
             <ViewRow label="Утас" value={phone} />
             <ViewRow label="Хаяг" value={address} />
@@ -257,6 +261,19 @@ export default function ProfilePage() {
               <div className="space-y-6">
                 <InputField label="Овог" value={lastName} setValue={setLastName} />
                 <InputField label="Нэр" value={firstName} setValue={setFirstName} />
+                  <div>
+                    <label className="block mb-2">Хүйс</label>
+                    <select
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      className="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg"
+                    >
+                      <option value="">Сонгох</option>
+                      <option value="Эрэгтэй">Эрэгтэй</option>
+                      <option value="Эмэгтэй">Эмэгтэй</option>
+                      <option value="Бусад">Бусад</option>
+                    </select>
+                  </div>
                 <InputField label="Имэйл" value={email} setValue={setEmail} />
                 <InputField label="Утас" value={phone} setValue={setPhone} />
                 <InputField label="Хаяг" value={address} setValue={setAddress} />
@@ -300,6 +317,7 @@ export default function ProfilePage() {
 
                 <ViewRow label="Овог" value={lastName} />
                 <ViewRow label="Нэр" value={firstName} />
+                <ViewRow label="Хүйс" value={gender} />
                 <ViewRow label="Имэйл" value={email} />
                 <ViewRow label="Утас" value={phone} />
                 <ViewRow label="Хаяг" value={address} />
@@ -334,10 +352,13 @@ export default function ProfilePage() {
 /* ------------------ Components ------------------ */
 
 function ViewRow({ label, value }: any) {
+  const displayValue =
+    value && value.toString().trim() !== "" ? value : "--";
+
   return (
     <div className="border-b border-gray-700 py-3">
       <div className="text-gray-400 text-sm">{label}</div>
-      <div className="text-white font-medium">{value}</div>
+      <div className="text-white font-medium">{displayValue}</div>
     </div>
   );
 }
