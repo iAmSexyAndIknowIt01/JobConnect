@@ -15,7 +15,7 @@ export default function HeroSection() {
           priority
           className="object-cover object-center scale-110 blur-[2px]"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80"></div>
+        <div className="absolute inset-0 bg-linear-to-b from-black/70 via-black/40 to-black/80"></div>
       </div>
 
       {/* Content */}

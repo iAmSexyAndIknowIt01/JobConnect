@@ -15,10 +15,13 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  // Одоогийн хуудас шалгах
+  // /employer-р эхэлсэн path дээр navbar-г харуулахгүй
+  if (pathname.startsWith("/employer")) {
+    return null;
+  }
+
   const isHomePage = pathname === "/";
   const isJobsPage = pathname === "/jobs";
-  const isEmployerAuthPage = pathname === "/employer/auth";
 
   const scrollToAbout = () => {
     const section = document.getElementById("about-us");
@@ -27,11 +30,8 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
 
   const handleScrollToContact = () => {
     const element = document.getElementById("contact-us");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+    if (element) element.scrollIntoView({ behavior: "smooth" });
   };
-
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-lg border-b border-white/20">
@@ -45,23 +45,20 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
         <nav className="hidden md:flex gap-6 text-gray-100 font-medium items-center">
           {isHomePage && (
             <>
-              {/* <Link href="/jobs" className="hover:text-blue-400 transition">
-                Ажил
-              </Link> */}
               <div className="max-w-6xl mx-auto px-3 py-1 flex gap-6">
-                  <button onClick={scrollToAbout} className="hover:text-blue-600">
-                     Бидний тухай
-                  </button>
+                <button onClick={scrollToAbout} className="hover:text-blue-600">
+                  Бидний тухай
+                </button>
               </div>
               <div className="max-w-6xl mx-auto px-3 py-1 flex gap-6">
-                  <button onClick={handleScrollToContact} className="hover:text-blue-600">
-                     Холбоо барих
-                  </button>
+                <button onClick={handleScrollToContact} className="hover:text-blue-600">
+                  Холбоо барих
+                </button>
               </div>
             </>
           )}
 
-          {!isHomePage && !isEmployerAuthPage &&(
+          {!isHomePage && (
             <>
               {isLoggedIn ? (
                 <div className="relative">
