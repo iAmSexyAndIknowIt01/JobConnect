@@ -31,6 +31,8 @@ export default function EmployerAuth() {
         .eq("password", password)
         .single();
 
+      localStorage.setItem("employer_user_id", data.id); // localStorage-д хадгалах
+
       if (!data) return setError("Имэйл эсвэл нууц үг буруу байна!");
 
       // Амжилттай нэвтрэх
@@ -48,20 +50,47 @@ export default function EmployerAuth() {
     // Бүртгүүлэх үед
     if (password !== confirmPassword) return setError("Нууц үг таарахгүй байна!");
 
-    const { error: insertErr } = await supabase
-      .from("employer_accounts")
-      .insert([{ company_name: companyName, email, password }]);
+    try {
+      // Давтагдахгүй UUID үүсгэх
+      const userId = crypto.randomUUID();
 
-    if (insertErr) return setError("Алдаа гарлаа!");
+      // 1. employer_accounts руу insert хийх
+      const { data: accountData, error: insertErr } = await supabase
+        .from("employer_accounts")
+        .insert([{
+          id: userId,
+          company_name: companyName,
+          email,
+          password
+        }])
+        .select()
+        .single();
 
-    // Амжилттай бүртгүүлсэн үед SuccessModal харуулах
-    setSuccessMessage("Амжилттай бүртгүүллээ!");
-    setShowSuccessModal(true);
+      if (insertErr) throw insertErr;
 
-    setTimeout(() => {
-      setShowSuccessModal(false);
-      setIsLogin(true); // Нэвтрэх form руу шилжих
-    }, 1500);
+      // 2. employer_profile руу insert хийх
+      const { error: profileErr } = await supabase
+        .from("employer_profile")
+        .insert([{
+          id: userId,           // employer_accounts-ийн UUID-г ашиглана
+          company_name: companyName
+        }]);
+
+      if (profileErr) throw profileErr;
+
+      setSuccessMessage("Амжилттай бүртгүүллээ!");
+      setShowSuccessModal(true);
+
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        setIsLogin(true); // Нэвтрэх form руу шилжих
+      }, 1500);
+
+    } catch (err) {
+      console.log(err);
+      console.error(err);
+      setError("Бүртгүүлэхэд алдаа гарлаа!");
+    }
   };
 
   if (isLoggedIn) return <CandidateDashboard onLogout={handleLogout} />;
