@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClients";
 import EmployerNavbar from "@/components/EmployerNavbar";
+import SuccessModal from "@/components/SuccessModal";
 
 export default function EmployerProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -17,31 +18,30 @@ export default function EmployerProfilePage() {
     description: ""
   });
 
-  // Профайл мэдээллийг Supabase-аас татах
+  // Success Modal state
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  // ------------------------------
+  //  Профайл мэдээллийг татах
+  // ------------------------------
   useEffect(() => {
     const fetchProfile = async () => {
       const userId = localStorage.getItem("employer_user_id");
-      console.log("Fetched userId from localStorage:", userId);
       if (!userId) return;
 
       try {
-        // employer_accounts-аас email авах
-        const { data: accountData, error: accountErr } = await supabase
+        const { data: accountData } = await supabase
           .from("employer_accounts")
           .select("email")
           .eq("id", userId)
           .single();
 
-        if (accountErr) throw accountErr;
-
-        // employer_profile-аас бусад мэдээлэл авах
-        const { data: profileData, error: profileErr } = await supabase
+        const { data: profileData } = await supabase
           .from("employer_profile")
           .select("company_name, industry, location, phone, description")
           .eq("id", userId)
           .single();
-
-        if (profileErr) throw profileErr;
 
         setProfile({
           logo: null,
@@ -54,14 +54,16 @@ export default function EmployerProfilePage() {
         });
 
       } catch (err) {
-        console.log("err:", err);
-        console.error("Profile татахад алдаа гарлаа:", err);
+        console.error("Profile татахад алдаа:", err);
       }
     };
 
     fetchProfile();
   }, []);
 
+  // ------------------------------
+  //  LOGO солих
+  // ------------------------------
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -70,9 +72,48 @@ export default function EmployerProfilePage() {
     }
   };
 
+  // ------------------------------
+  //  ПРОФАЙЛ UPDATE хийх
+  // ------------------------------
+  const handleSave = async () => {
+    const userId = localStorage.getItem("employer_user_id");
+    if (!userId) return;
+
+    try {
+      const { error: profileErr } = await supabase
+        .from("employer_profile")
+        .update({
+          company_name: profile.companyName,
+          industry: profile.industry,
+          location: profile.location,
+          phone: profile.phone,
+          description: profile.description
+        })
+        .eq("id", userId);
+
+      if (profileErr) throw profileErr;
+
+      // SUCCESS MODAL SHOW
+      setSuccessMessage("Профайл амжилттай хадгалагдлаа!");
+      setIsSuccessOpen(true);
+
+      setTimeout(() => {
+        setIsSuccessOpen(false);
+      }, 2000);
+
+      setIsEditing(false);
+
+    } catch (err) {
+      console.error("Хадгалахад алдаа:", err);
+      alert("Хадгалах үед алдаа гарлаа.");
+    }
+  };
+
+  // ------------------------------
+  //  LOGOUT
+  // ------------------------------
   const handleLogout = () => {
-    localStorage.removeItem("employer_user_id"); // session устгах
-    console.log("Logout хийлээ");
+    localStorage.removeItem("employer_user_id");
   };
 
   return (
@@ -112,7 +153,7 @@ export default function EmployerProfilePage() {
           </div>
         </div>
 
-        {/* Company Info */}
+        {/* FORM FIELDS */}
         <div className="mb-6">
           <label className="block text-lg font-semibold mb-2">Компанийн нэр</label>
           <input
@@ -120,7 +161,9 @@ export default function EmployerProfilePage() {
             value={profile.companyName}
             readOnly={!isEditing}
             onChange={(e) => setProfile(prev => ({ ...prev, companyName: e.target.value }))}
-            className={`w-full p-3 rounded-md border ${isEditing ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-700 bg-gray-800 text-gray-400'}`}
+            className={`w-full p-3 rounded-md border ${
+              isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
+            }`}
           />
         </div>
 
@@ -131,7 +174,9 @@ export default function EmployerProfilePage() {
             value={profile.industry}
             readOnly={!isEditing}
             onChange={(e) => setProfile(prev => ({ ...prev, industry: e.target.value }))}
-            className={`w-full p-3 rounded-md border ${isEditing ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-700 bg-gray-800 text-gray-400'}`}
+            className={`w-full p-3 rounded-md border ${
+              isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
+            }`}
           />
         </div>
 
@@ -142,7 +187,9 @@ export default function EmployerProfilePage() {
             value={profile.location}
             readOnly={!isEditing}
             onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))}
-            className={`w-full p-3 rounded-md border ${isEditing ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-700 bg-gray-800 text-gray-400'}`}
+            className={`w-full p-3 rounded-md border ${
+              isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
+            }`}
           />
         </div>
 
@@ -164,7 +211,9 @@ export default function EmployerProfilePage() {
               value={profile.phone}
               readOnly={!isEditing}
               onChange={(e) => setProfile(prev => ({ ...prev, phone: e.target.value }))}
-              className={`w-full p-3 rounded-md border ${isEditing ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-700 bg-gray-800 text-gray-400'}`}
+              className={`w-full p-3 rounded-md border ${
+                isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
+              }`}
             />
           </div>
         </div>
@@ -175,17 +224,27 @@ export default function EmployerProfilePage() {
             rows={5}
             value={profile.description}
             readOnly={!isEditing}
-            onChange={(e) => setProfile(prev => ({ ...prev, description: e.target.value }))}
-            className={`w-full p-3 rounded-md border ${isEditing ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-700 bg-gray-800 text-gray-400'}`}
+            onChange={(e) =>
+              setProfile(prev => ({ ...prev, description: e.target.value }))
+            }
+            className={`w-full p-3 rounded-md border ${
+              isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
+            }`}
           />
         </div>
 
         {isEditing && (
-          <button className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg text-lg shadow-md">
+          <button
+            onClick={handleSave}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg text-lg shadow-md"
+          >
             Хадгалах
           </button>
         )}
       </div>
+
+      {/* SUCCESS MODAL */}
+      <SuccessModal isOpen={isSuccessOpen} message={successMessage} />
     </div>
   );
 }
