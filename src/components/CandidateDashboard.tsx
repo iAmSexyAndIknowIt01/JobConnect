@@ -104,7 +104,7 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ onLogout }) => 
                   className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700"
                   onClick={() => {
                     setMenuOpen(false);
-                    router.push("/add-job");
+                    router.push("/employer-add-job");
                   }}
                 >
                   Ажил нэмэх
