@@ -22,9 +22,6 @@ export default function EmployerProfilePage() {
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  // ------------------------------
-  //  Профайл мэдээллийг татах
-  // ------------------------------
   useEffect(() => {
     const fetchProfile = async () => {
       const userId = localStorage.getItem("employer_user_id");
@@ -61,9 +58,6 @@ export default function EmployerProfilePage() {
     fetchProfile();
   }, []);
 
-  // ------------------------------
-  //  LOGO солих
-  // ------------------------------
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -72,12 +66,23 @@ export default function EmployerProfilePage() {
     }
   };
 
-  // ------------------------------
-  //  ПРОФАЙЛ UPDATE хийх
-  // ------------------------------
   const handleSave = async () => {
     const userId = localStorage.getItem("employer_user_id");
     if (!userId) return;
+
+    // ----------------------------------------
+    // Заавал бөглөх талбаруудыг шалгах
+    // ----------------------------------------
+    if (
+      !profile.companyName ||
+      !profile.industry ||
+      !profile.location ||
+      !profile.phone ||
+      !profile.description
+    ) {
+      alert("Бүх талбарыг заавал бөглөнө үү!");
+      return;
+    }
 
     try {
       const { error: profileErr } = await supabase
@@ -93,13 +98,9 @@ export default function EmployerProfilePage() {
 
       if (profileErr) throw profileErr;
 
-      // SUCCESS MODAL SHOW
       setSuccessMessage("Профайл амжилттай хадгалагдлаа!");
       setIsSuccessOpen(true);
-
-      setTimeout(() => {
-        setIsSuccessOpen(false);
-      }, 2000);
+      setTimeout(() => setIsSuccessOpen(false), 2000);
 
       setIsEditing(false);
 
@@ -109,9 +110,6 @@ export default function EmployerProfilePage() {
     }
   };
 
-  // ------------------------------
-  //  LOGOUT
-  // ------------------------------
   const handleLogout = () => {
     localStorage.removeItem("employer_user_id");
   };
@@ -133,7 +131,7 @@ export default function EmployerProfilePage() {
 
         {/* LOGO */}
         <div className="mb-6">
-          <label className="block text-lg font-semibold mb-2">Компанийн Лого</label>
+          <label className="block text-lg font-semibold mb-2">Компанийн Лого <span className="text-red-500">*</span></label>
           <div className="flex items-center gap-4">
             <div className="w-28 h-28 bg-gray-700 border border-gray-600 rounded-lg flex items-center justify-center overflow-hidden">
               {profile.logo ? (
@@ -154,82 +152,53 @@ export default function EmployerProfilePage() {
         </div>
 
         {/* FORM FIELDS */}
-        <div className="mb-6">
-          <label className="block text-lg font-semibold mb-2">Компанийн нэр</label>
-          <input
-            type="text"
-            value={profile.companyName}
-            readOnly={!isEditing}
-            onChange={(e) => setProfile(prev => ({ ...prev, companyName: e.target.value }))}
-            className={`w-full p-3 rounded-md border ${
-              isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
-            }`}
-          />
-        </div>
-
-        <div className="mb-6">
-          <label className="block text-lg font-semibold mb-2">Салбар</label>
-          <input
-            type="text"
-            value={profile.industry}
-            readOnly={!isEditing}
-            onChange={(e) => setProfile(prev => ({ ...prev, industry: e.target.value }))}
-            className={`w-full p-3 rounded-md border ${
-              isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
-            }`}
-          />
-        </div>
-
-        <div className="mb-6">
-          <label className="block text-lg font-semibold mb-2">Байршил</label>
-          <input
-            type="text"
-            value={profile.location}
-            readOnly={!isEditing}
-            onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))}
-            className={`w-full p-3 rounded-md border ${
-              isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
-            }`}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div>
-            <label className="block text-lg font-semibold mb-2">Имэйл</label>
-            <input
-              type="email"
-              value={profile.email}
-              readOnly
-              className="w-full p-3 rounded-md border border-gray-700 bg-gray-800 text-gray-400"
-            />
+        {[
+          { label: "Компанийн нэр", key: "companyName" },
+          { label: "Салбар", key: "industry" },
+          { label: "Байршил", key: "location" },
+          { label: "Утас", key: "phone" },
+          { label: "Компанийн танилцуулга", key: "description" }
+        ].map(field => (
+          <div className="mb-6" key={field.key}>
+            <label className="block text-lg font-semibold mb-2">
+              {field.label} <span className="text-red-500">*</span>
+            </label>
+            {field.key === "description" ? (
+              <textarea
+                rows={5}
+                value={profile.description}
+                readOnly={!isEditing}
+                onChange={(e) =>
+                  setProfile(prev => ({ ...prev, description: e.target.value }))
+                }
+                className={`w-full p-3 rounded-md border ${
+                  isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
+                }`}
+              />
+            ) : (
+              <input
+                type={field.key === "phone" ? "text" : "text"}
+                value={profile[field.key as keyof typeof profile] as string}
+                readOnly={!isEditing}
+                onChange={(e) =>
+                  setProfile(prev => ({ ...prev, [field.key]: e.target.value }))
+                }
+                className={`w-full p-3 rounded-md border ${
+                  isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
+                }`}
+              />
+            )}
           </div>
+        ))}
 
-          <div>
-            <label className="block text-lg font-semibold mb-2">Утас</label>
-            <input
-              type="text"
-              value={profile.phone}
-              readOnly={!isEditing}
-              onChange={(e) => setProfile(prev => ({ ...prev, phone: e.target.value }))}
-              className={`w-full p-3 rounded-md border ${
-                isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
-              }`}
-            />
-          </div>
-        </div>
-
+        {/* Email */}
         <div className="mb-6">
-          <label className="block text-lg font-semibold mb-2">Компанийн танилцуулга</label>
-          <textarea
-            rows={5}
-            value={profile.description}
-            readOnly={!isEditing}
-            onChange={(e) =>
-              setProfile(prev => ({ ...prev, description: e.target.value }))
-            }
-            className={`w-full p-3 rounded-md border ${
-              isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
-            }`}
+          <label className="block text-lg font-semibold mb-2">Имэйл</label>
+          <input
+            type="email"
+            value={profile.email}
+            readOnly
+            className="w-full p-3 rounded-md border border-gray-700 bg-gray-800 text-gray-400"
           />
         </div>
 
@@ -243,7 +212,6 @@ export default function EmployerProfilePage() {
         )}
       </div>
 
-      {/* SUCCESS MODAL */}
       <SuccessModal isOpen={isSuccessOpen} message={successMessage} />
     </div>
   );
