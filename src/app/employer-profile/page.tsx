@@ -15,8 +15,10 @@ export default function EmployerProfilePage() {
     location: "",
     email: "",
     phone: "",
-    description: ""
+    description: "",
   });
+
+  const [logoFile, setLogoFile] = useState<File | null>(null); // NEW ✔
 
   // Success Modal state
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
@@ -25,6 +27,7 @@ export default function EmployerProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       const userId = localStorage.getItem("employer_user_id");
+      console.log("Fetching profile for user ID:", userId);
       if (!userId) return;
 
       try {
@@ -36,20 +39,19 @@ export default function EmployerProfilePage() {
 
         const { data: profileData } = await supabase
           .from("employer_profile")
-          .select("company_name, industry, location, phone, description")
+          .select("company_name, industry, location, phone, description, profile_image_path")
           .eq("id", userId)
           .single();
 
         setProfile({
-          logo: null,
+          logo: profileData?.profile_image_path || null,
           companyName: profileData?.company_name || "",
           industry: profileData?.industry || "",
           location: profileData?.location || "",
           email: accountData?.email || "",
           phone: profileData?.phone || "",
-          description: profileData?.description || ""
+          description: profileData?.description || "",
         });
-
       } catch (err) {
         console.error("Profile татахад алдаа:", err);
       }
@@ -60,9 +62,11 @@ export default function EmployerProfilePage() {
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+
     if (file) {
-      const url = URL.createObjectURL(file);
-      setProfile(prev => ({ ...prev, logo: url }));
+      setLogoFile(file); // REAL FILE ✔
+      // const url = URL.createObjectURL(file);
+      setProfile((prev) => ({ ...prev, logo: URL.createObjectURL(file) }));
     }
   };
 
@@ -70,21 +74,47 @@ export default function EmployerProfilePage() {
     const userId = localStorage.getItem("employer_user_id");
     if (!userId) return;
 
-    // ----------------------------------------
-    // Заавал бөглөх талбаруудыг шалгах
-    // ----------------------------------------
-    if (
-      !profile.companyName ||
-      !profile.industry ||
-      !profile.location ||
-      !profile.phone ||
-      !profile.description
-    ) {
+    if (!profile.companyName || !profile.industry || !profile.location || !profile.phone || !profile.description) {
       alert("Бүх талбарыг заавал бөглөнө үү!");
       return;
     }
 
+    let uploadedLogoUrl = profile.logo; // default old logo
+
     try {
+      // ------------------------------------------------
+      // 1) Upload LOGO to Supabase Storage
+      // ------------------------------------------------
+      if (logoFile) {
+        const ext = logoFile.name.split(".").pop();
+        const fileName = `${userId}-${Date.now()}.${ext}`;
+        const filePath = `logos/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("company_logos")
+          .upload(filePath, logoFile, {
+            contentType: logoFile.type,
+            cacheControl: "3600",
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.log(uploadError)
+          console.error(uploadError);
+          alert("Лого upload хийхэд алдаа гарлаа!");
+          return;
+        }
+
+        const { data: publicUrl } = supabase.storage
+          .from("company_logos")
+          .getPublicUrl(filePath);
+
+        uploadedLogoUrl = publicUrl.publicUrl;
+      }
+
+      // ------------------------------------------------
+      // 2) UPDATE employer_profile table
+      // ------------------------------------------------
       const { error: profileErr } = await supabase
         .from("employer_profile")
         .update({
@@ -92,7 +122,8 @@ export default function EmployerProfilePage() {
           industry: profile.industry,
           location: profile.location,
           phone: profile.phone,
-          description: profile.description
+          description: profile.description,
+          profile_image_path: uploadedLogoUrl, // SAVE LOGO ✔
         })
         .eq("id", userId);
 
@@ -101,8 +132,8 @@ export default function EmployerProfilePage() {
       setSuccessMessage("Профайл амжилттай хадгалагдлаа!");
       setIsSuccessOpen(true);
       setTimeout(() => setIsSuccessOpen(false), 2000);
-
       setIsEditing(false);
+      setLogoFile(null);
 
     } catch (err) {
       console.error("Хадгалахад алдаа:", err);
@@ -122,16 +153,19 @@ export default function EmployerProfilePage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-emerald-400">Ажил Олгогчийн Профайл</h1>
           <button
-            onClick={() => setIsEditing(prev => !prev)}
+            onClick={() => setIsEditing((prev) => !prev)}
             className="bg-emerald-600 hover:bg-emerald-500 text-white py-2 px-4 rounded-lg font-semibold"
           >
             {isEditing ? "Харах" : "Засах"}
           </button>
         </div>
 
-        {/* LOGO */}
+        {/* LOGO UPLOAD */}
         <div className="mb-6">
-          <label className="block text-lg font-semibold mb-2">Компанийн Лого <span className="text-red-500">*</span></label>
+          <label className="block text-lg font-semibold mb-2">
+            Компанийн Лого <span className="text-red-500">*</span>
+          </label>
+
           <div className="flex items-center gap-4">
             <div className="w-28 h-28 bg-gray-700 border border-gray-600 rounded-lg flex items-center justify-center overflow-hidden">
               {profile.logo ? (
@@ -140,13 +174,9 @@ export default function EmployerProfilePage() {
                 <span className="text-gray-400 text-sm">Лого байхгүй</span>
               )}
             </div>
+
             {isEditing && (
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleLogoChange}
-                className="text-gray-300"
-              />
+              <input type="file" accept="image/*" onChange={handleLogoChange} className="text-gray-300" />
             )}
           </div>
         </div>
@@ -157,41 +187,46 @@ export default function EmployerProfilePage() {
           { label: "Салбар", key: "industry" },
           { label: "Байршил", key: "location" },
           { label: "Утас", key: "phone" },
-          { label: "Компанийн танилцуулга", key: "description" }
-        ].map(field => (
+          { label: "Компанийн танилцуулга", key: "description" },
+        ].map((field) => (
           <div className="mb-6" key={field.key}>
             <label className="block text-lg font-semibold mb-2">
               {field.label} <span className="text-red-500">*</span>
             </label>
+
             {field.key === "description" ? (
               <textarea
                 rows={5}
                 value={profile.description}
                 readOnly={!isEditing}
                 onChange={(e) =>
-                  setProfile(prev => ({ ...prev, description: e.target.value }))
+                  setProfile((prev) => ({ ...prev, description: e.target.value }))
                 }
                 className={`w-full p-3 rounded-md border ${
-                  isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
+                  isEditing
+                    ? "border-gray-600 bg-gray-700 text-white"
+                    : "border-gray-700 bg-gray-800 text-gray-400"
                 }`}
               />
             ) : (
               <input
-                type={field.key === "phone" ? "text" : "text"}
+                type="text"
                 value={profile[field.key as keyof typeof profile] as string}
                 readOnly={!isEditing}
                 onChange={(e) =>
-                  setProfile(prev => ({ ...prev, [field.key]: e.target.value }))
+                  setProfile((prev) => ({ ...prev, [field.key]: e.target.value }))
                 }
                 className={`w-full p-3 rounded-md border ${
-                  isEditing ? "border-gray-600 bg-gray-700 text-white" : "border-gray-700 bg-gray-800 text-gray-400"
+                  isEditing
+                    ? "border-gray-600 bg-gray-700 text-white"
+                    : "border-gray-700 bg-gray-800 text-gray-400"
                 }`}
               />
             )}
           </div>
         ))}
 
-        {/* Email */}
+        {/* EMAIL READONLY */}
         <div className="mb-6">
           <label className="block text-lg font-semibold mb-2">Имэйл</label>
           <input
