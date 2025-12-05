@@ -15,27 +15,22 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  // /employer-р эхэлсэн path дээр navbar-г харуулахгүй
-  if (pathname.startsWith("/employer")) {
-    return null;
-  }
+  // employer dashboard дээр navbar харагдахгүй
+  if (pathname.startsWith("/employer")) return null;
 
   const isHomePage = pathname === "/";
   const isJobsPage = pathname === "/jobs";
 
-  const scrollToAbout = () => {
-    const section = document.getElementById("about-us");
-    if (section) section.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const handleScrollToContact = () => {
-    const element = document.getElementById("contact-us");
-    if (element) element.scrollIntoView({ behavior: "smooth" });
+  // Smooth scroll helper
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-lg border-b border-white/20">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
         {/* Logo */}
         <Link href="/" className="text-2xl font-semibold text-white tracking-wide">
           <span className="text-blue-400">Job</span>Connect
@@ -43,18 +38,24 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-6 text-gray-100 font-medium items-center">
+
           {isHomePage && (
             <>
-              <div className="max-w-6xl mx-auto px-3 py-1 flex gap-6">
-                <button onClick={scrollToAbout} className="hover:text-blue-600">
-                  Бидний тухай
-                </button>
-              </div>
-              <div className="max-w-6xl mx-auto px-3 py-1 flex gap-6">
-                <button onClick={handleScrollToContact} className="hover:text-blue-600">
-                  Холбоо барих
-                </button>
-              </div>
+              <button onClick={() => scrollTo("about-us")} className="hover:text-blue-500">
+                Бидний тухай
+              </button>
+
+              <button onClick={() => scrollTo("features")} className="hover:text-blue-500">
+                Бидний давуу тал
+              </button>
+
+              <button onClick={() => scrollTo("how-it-works")} className="hover:text-blue-500">
+                How it works
+              </button>
+
+              <button onClick={() => scrollTo("contact-us")} className="hover:text-blue-500">
+                Холбоо барих
+              </button>
             </>
           )}
 
@@ -108,7 +109,7 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
           )}
         </nav>
 
-        {/* Mobile Burger */}
+        {/* Mobile Menu Icon */}
         {!isHomePage && (
           <button
             onClick={() => setOpen(!open)}
@@ -158,20 +159,6 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
                     onClick={() => setOpen(false)}
                   >
                     Ажил
-                  </Link>
-                  <Link
-                    href="/about"
-                    className="block text-gray-100 hover:text-blue-400"
-                    onClick={() => setOpen(false)}
-                  >
-                    Бидний тухай
-                  </Link>
-                  <Link
-                    href="/contact"
-                    className="block text-gray-100 hover:text-blue-400"
-                    onClick={() => setOpen(false)}
-                  >
-                    Холбоо барих
                   </Link>
                 </>
               )}
