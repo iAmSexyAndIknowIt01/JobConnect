@@ -31,7 +31,9 @@ export default function EmployerAuth() {
         .eq("password", password)
         .single();
 
-      localStorage.setItem("employer_user_id", data.id); // localStorage-д хадгалах
+      console.log("Login data:", data);
+      localStorage.setItem("employer_user_id", data.id);// localStorage-д хадгалах
+      sessionStorage.setItem("employer_user_id", data.id); 
 
       if (!data) return setError("Имэйл эсвэл нууц үг буруу байна!");
 

@@ -21,7 +21,8 @@ const EmployerAddJob = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    const employerId = sessionStorage.getItem("employer_user_id");
+    console.log("Employer ID:", employerId);
     if (
       !title || !jobType || !location || !salary ||
       !workSchedule || !requirements || !benefits ||
@@ -36,9 +37,14 @@ const EmployerAddJob = () => {
       location,
       description,
       salary,
-      employer_company: industry,
+      industry,
       status: "1",
       valid: "1",
+      job_type: jobType,
+      work_schedule: workSchedule,
+      requirements,
+      benefits,
+      employer_company: employerId,
       created_at: new Date(),
       updated_at: new Date(),
     };
@@ -74,13 +80,13 @@ const EmployerAddJob = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("employer_user_id");
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem("employer_user_id");
+  // };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white pb-20">
-      <EmployerNavbar onLogout={handleLogout} />
+      <EmployerNavbar />
 
       <div className="p-8 max-w-4xl mx-auto bg-gray-800 border border-gray-700 rounded-xl shadow-xl mt-8">
         <h1 className="text-3xl font-bold text-emerald-400 mb-6">Ажлын шинэ зар нэмэх</h1>
