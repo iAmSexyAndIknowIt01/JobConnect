@@ -147,7 +147,7 @@ export default function EmployerProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white pb-20">
-      <EmployerNavbar onLogout={handleLogout} />
+      <EmployerNavbar />
 
       <div className="p-8 max-w-3xl mx-auto bg-gray-800 border border-gray-700 rounded-xl shadow-xl mt-8">
         <div className="flex justify-between items-center mb-6">
