@@ -49,6 +49,13 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ onLogout }) => 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+    // 📌 Logout function (session clear + redirect)
+  const handleLogout = () => {
+    sessionStorage.clear();
+    localStorage.clear();
+    router.push("/"); // хамгийн эхний хуудас руу
+  };
+
   // Шүүлтүүрийн логик
   const filteredCandidates = useMemo(() => {
     return CANDIDATES.filter((candidate) => {
@@ -68,6 +75,7 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ onLogout }) => 
         (genderFilter === "" || candidate.gender === genderFilter)
       );
     });
+
   }, [searchTerm, minAge, maxAge, genderFilter]);
 
   return (
@@ -113,7 +121,7 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ onLogout }) => 
                 {/* Logout */}
                 <button
                   className="w-full text-left px-4 py-2 text-red-400 hover:bg-gray-700"
-                  onClick={onLogout}
+                  onClick={handleLogout}
                 >
                   Гарах
                 </button>
