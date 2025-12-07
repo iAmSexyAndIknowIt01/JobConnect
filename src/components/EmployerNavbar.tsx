@@ -3,14 +3,17 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-interface EmployerNavbarProps {
-  onLogout: () => void;
-}
-
-const EmployerNavbar: React.FC<EmployerNavbarProps> = ({ onLogout }) => {
+const EmployerNavbar: React.FC = () => {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+
+  // 📌 Logout function (session clear + redirect)
+  const handleLogout = () => {
+    sessionStorage.clear();
+    localStorage.clear();
+    router.push("/"); // хамгийн эхний хуудас руу
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -61,7 +64,7 @@ const EmployerNavbar: React.FC<EmployerNavbarProps> = ({ onLogout }) => {
                 className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700"
                 onClick={() => {
                   setMenuOpen(false);
-                  router.push("/employer-dashboard"); // ← энд ажилчдын жагсаалт руу
+                  router.push("/employer-dashboard");
                 }}
               >
                 Ажилчдын жагсаалт
@@ -69,7 +72,7 @@ const EmployerNavbar: React.FC<EmployerNavbarProps> = ({ onLogout }) => {
 
               <button
                 className="w-full text-left px-4 py-2 text-red-400 hover:bg-gray-700"
-                onClick={onLogout}
+                onClick={handleLogout}
               >
                 Гарах
               </button>
