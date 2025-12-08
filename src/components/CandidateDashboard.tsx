@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useMemo, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation"; // ✅ NEXT.JS navigation
+import React, { useState, useMemo } from "react";
+import EmployerNavbar from "@/components/EmployerNavbar"; // ✅ Navbar оруулсан
+import { useRouter } from "next/navigation"; // NEXT.JS navigation
 
 interface Candidate {
   id: number;
@@ -27,34 +28,12 @@ const CANDIDATES: Candidate[] = [
 ];
 
 const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ onLogout }) => {
-  const router = useRouter(); // ⚡ React Router биш — зөв Next.js router
+  const router = useRouter();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [minAge, setMinAge] = useState("");
   const [maxAge, setMaxAge] = useState("");
   const [genderFilter, setGenderFilter] = useState("");
-
-  // Бургер меню
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-
-  // Click outside → меню хаах
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-    // 📌 Logout function (session clear + redirect)
-  const handleLogout = () => {
-    sessionStorage.clear();
-    localStorage.clear();
-    router.push("/"); // хамгийн эхний хуудас руу
-  };
 
   // Шүүлтүүрийн логик
   const filteredCandidates = useMemo(() => {
@@ -75,61 +54,12 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ onLogout }) => 
         (genderFilter === "" || candidate.gender === genderFilter)
       );
     });
-
   }, [searchTerm, minAge, maxAge, genderFilter]);
 
   return (
     <div className="min-h-screen bg-gray-800 text-gray-100">
-      {/* HEADER */}
-      <header className="bg-gray-800 shadow-lg border-b border-gray-700 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-white">Ажил Олгогчийн Самбар</h1>
-
-          {/* Бургер меню */}
-          <div className="relative" ref={menuRef}>
-            <button
-              onClick={() => setMenuOpen((prev) => !prev)}
-              className="text-white text-3xl hover:text-emerald-400"
-            >
-              ☰
-            </button>
-
-            {menuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg py-2 z-50">
-                {/* Профайл → Next.js router.push */}
-                <button
-                  className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    router.push("/employer-profile");
-                  }}
-                >
-                  Профайл
-                </button>
-
-                {/* Ажил нэмэх → navigate */}
-                <button
-                  className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    router.push("/employer-add-job");
-                  }}
-                >
-                  Ажил нэмэх
-                </button>
-
-                {/* Logout */}
-                <button
-                  className="w-full text-left px-4 py-2 text-red-400 hover:bg-gray-700"
-                  onClick={handleLogout}
-                >
-                  Гарах
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+      {/* ✅ Employer Navbar */}
+      <EmployerNavbar />
 
       {/* MAIN CONTENT */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
