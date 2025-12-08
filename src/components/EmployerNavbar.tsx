@@ -8,11 +8,10 @@ const EmployerNavbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  // 📌 Logout function (session clear + redirect)
   const handleLogout = () => {
     sessionStorage.clear();
     localStorage.clear();
-    router.push("/"); // хамгийн эхний хуудас руу
+    router.push("/");
   };
 
   useEffect(() => {
@@ -40,6 +39,8 @@ const EmployerNavbar: React.FC = () => {
 
           {menuOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg py-2 z-50">
+
+              {/* Профайл */}
               <button
                 className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700"
                 onClick={() => {
@@ -50,6 +51,7 @@ const EmployerNavbar: React.FC = () => {
                 Профайл
               </button>
 
+              {/* Ажил нэмэх */}
               <button
                 className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700"
                 onClick={() => {
@@ -60,6 +62,18 @@ const EmployerNavbar: React.FC = () => {
                 Ажил нэмэх
               </button>
 
+              {/* 🆕 Ажлын жагсаалт */}
+              <button
+                className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700"
+                onClick={() => {
+                  setMenuOpen(false);
+                  router.push("/employer-job-list");
+                }}
+              >
+                Ажлын жагсаалт
+              </button>
+
+              {/* Ажилчдын жагсаалт */}
               <button
                 className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700"
                 onClick={() => {
@@ -70,12 +84,14 @@ const EmployerNavbar: React.FC = () => {
                 Ажилчдын жагсаалт
               </button>
 
+              {/* Logout */}
               <button
                 className="w-full text-left px-4 py-2 text-red-400 hover:bg-gray-700"
                 onClick={handleLogout}
               >
                 Гарах
               </button>
+
             </div>
           )}
         </div>

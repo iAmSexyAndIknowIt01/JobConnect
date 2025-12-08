@@ -27,7 +27,7 @@ export default function EmployerProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       const userId = localStorage.getItem("employer_user_id");
-      console.log("Fetching profile for user ID:", userId);
+      // console.log("Fetching profile for user ID:", userId);
       if (!userId) return;
 
       try {
