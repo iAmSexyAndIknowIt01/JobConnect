@@ -31,7 +31,6 @@ export default function EmployerAuth() {
         .eq("password", password)
         .single();
 
-      console.log("Login data:", data);
       localStorage.setItem("employer_user_id", data.id);// localStorage-д хадгалах
       sessionStorage.setItem("employer_user_id", data.id); 
 
