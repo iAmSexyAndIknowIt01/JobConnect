@@ -63,7 +63,11 @@ const NewsFeed: React.FC = () => {
         ))}
 
         <div className="text-center mt-6">
-          <a href="#" className="text-blue-500 hover:text-blue-400 font-semibold text-sm">
+          <a
+            href="#"
+            onClick={(e) => e.preventDefault()} // Click үйлдлийг хааж байна
+            className="text-blue-500 hover:text-blue-400 font-semibold text-sm"
+          >
             Бүх мэдээг харах →
           </a>
         </div>

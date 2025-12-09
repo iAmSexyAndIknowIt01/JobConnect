@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import SuccessModal from "@/components/SuccessModal";
 import FailedModal from "@/components/FailedModal";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 interface Job {
   id: number | string;
@@ -24,13 +25,15 @@ interface JobModalProps {
   onClose: () => void;
 }
 
+const supabase = createClientComponentClient(); // Supabase client
+
 const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleApply = () => {
+  const handleApply = async () => {
     const userId = sessionStorage.getItem("userId");
 
     if (!userId) {
@@ -39,11 +42,23 @@ const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
       return;
     }
 
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-      onClose();
-    }, 1500);
+    try {
+      const { data, error } = await supabase
+        .from('jobs_request')
+        .insert([{ user_id: userId, job_id: job.id }]);
+
+      if (error) throw error;
+
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        onClose();
+      }, 1500);
+    } catch (err) {
+      console.error("Insert error:", err);
+      setShowError(true);
+      setTimeout(() => setShowError(false), 1500);
+    }
   };
 
   return (
@@ -58,7 +73,6 @@ const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
         >
           <div className="flex justify-between items-start border-b border-gray-700 pb-4 mb-4">
             <h2 className="text-3xl font-bold text-blue-400">{job.title}</h2>
-
             <button
               className="text-gray-400 hover:text-gray-100 transition"
               onClick={onClose}
