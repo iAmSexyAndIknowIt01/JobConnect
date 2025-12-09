@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import EmployerNavbar from "@/components/EmployerNavbar"; // ✅ Navbar оруулсан
-import { useRouter } from "next/navigation"; // NEXT.JS navigation
+import EmployerNavbar from "@/components/EmployerNavbar";
+import CandidateModal from "@/components/CandidateModal"; // ← ⭐ Modal импорт
+
+import { useRouter } from "next/navigation";
 
 interface Candidate {
   id: number;
@@ -35,6 +37,20 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ onLogout }) => 
   const [maxAge, setMaxAge] = useState("");
   const [genderFilter, setGenderFilter] = useState("");
 
+  // ⭐ Modal state нэмсэн
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = (candidate: Candidate) => {
+    setSelectedCandidate(candidate);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedCandidate(null);
+    setIsModalOpen(false);
+  };
+
   // Шүүлтүүрийн логик
   const filteredCandidates = useMemo(() => {
     return CANDIDATES.filter((candidate) => {
@@ -58,11 +74,10 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ onLogout }) => 
 
   return (
     <div className="min-h-screen bg-gray-800 text-gray-100">
-      {/* ✅ Employer Navbar */}
       <EmployerNavbar />
 
-      {/* MAIN CONTENT */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
         {/* Шүүлтүүр */}
         <section className="mb-8 p-6 bg-gray-900 rounded-lg border border-gray-800">
           <h3 className="text-xl font-semibold mb-4 text-white border-b border-gray-700 pb-2">
@@ -147,7 +162,11 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ onLogout }) => 
                   ))}
                 </div>
 
-                <button className="mt-4 w-full py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-bold">
+                {/* ⭐ Modal нээх товч */}
+                <button
+                  onClick={() => openModal(candidate)}
+                  className="mt-4 w-full py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-bold"
+                >
                   Дэлгэрэнгүй CV үзэх
                 </button>
               </div>
@@ -159,6 +178,13 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ onLogout }) => 
           )}
         </div>
       </main>
+
+      {/* ⭐ Modal Component */}
+      <CandidateModal
+        isOpen={isModalOpen}
+        candidate={selectedCandidate}
+        onClose={closeModal}
+      />
     </div>
   );
 };
