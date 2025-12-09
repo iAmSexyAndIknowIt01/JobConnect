@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu } from "lucide-react";
+import Link from "next/link";
 
 interface NavbarProps {
   isLoggedIn: boolean;
@@ -14,6 +14,7 @@ interface NavbarProps {
 export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   // employer dashboard дээр navbar харагдахгүй
   if (pathname.startsWith("/employer")) return null;
@@ -27,14 +28,23 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Logo дээр дарах үед session clear болон landing page рүү шилжүүлэх
+  const handleLogoClick = () => {
+    sessionStorage.clear(); // session устгах
+    router.push("/");        // landing page рүү
+  };
+
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-lg border-b border-white/20">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
         {/* Logo */}
-        <Link href="/" className="text-2xl font-semibold text-white tracking-wide">
+        <button
+          onClick={handleLogoClick}
+          className="text-2xl font-semibold text-white tracking-wide focus:outline-none"
+        >
           <span className="text-blue-400">Job</span>Connect
-        </Link>
+        </button>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-6 text-gray-100 font-medium items-center">
@@ -44,15 +54,12 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
               <button onClick={() => scrollTo("about-us")} className="hover:text-blue-500">
                 Бидний тухай
               </button>
-
               <button onClick={() => scrollTo("features")} className="hover:text-blue-500">
                 Бидний давуу тал
               </button>
-
               <button onClick={() => scrollTo("how-it-works")} className="hover:text-blue-500">
                 How it works
               </button>
-
               <button onClick={() => scrollTo("contact-us")} className="hover:text-blue-500">
                 Холбоо барих
               </button>
@@ -71,18 +78,10 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
                   </button>
                   {open && (
                     <div className="absolute right-0 mt-2 bg-gray-800 rounded-md shadow-lg w-40 text-sm">
-                      <Link
-                        href="/profile"
-                        className="block px-4 py-2 hover:bg-gray-700"
-                        onClick={() => setOpen(false)}
-                      >
+                      <Link href="/profile" className="block px-4 py-2 hover:bg-gray-700" onClick={() => setOpen(false)}>
                         Профайл
                       </Link>
-                      <Link
-                        href="/jobs"
-                        className="block px-4 py-2 hover:bg-gray-700"
-                        onClick={() => setOpen(false)}
-                      >
+                      <Link href="/jobs" className="block px-4 py-2 hover:bg-gray-700" onClick={() => setOpen(false)}>
                         Ажил
                       </Link>
                       <button
@@ -111,10 +110,7 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
 
         {/* Mobile Menu Icon */}
         {!isHomePage && (
-          <button
-            onClick={() => setOpen(!open)}
-            className="md:hidden text-gray-100 hover:text-blue-400"
-          >
+          <button onClick={() => setOpen(!open)} className="md:hidden text-gray-100 hover:text-blue-400">
             <Menu size={26} />
           </button>
         )}
@@ -125,18 +121,10 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
         <div className="md:hidden bg-black/70 backdrop-blur-md py-4 px-6 space-y-3">
           {isLoggedIn ? (
             <>
-              <Link
-                href="/profile"
-                className="block text-gray-100 hover:text-blue-400"
-                onClick={() => setOpen(false)}
-              >
+              <Link href="/profile" className="block text-gray-100 hover:text-blue-400" onClick={() => setOpen(false)}>
                 Профайл
               </Link>
-              <Link
-                href="/jobs"
-                className="block text-gray-100 hover:text-blue-400"
-                onClick={() => setOpen(false)}
-              >
+              <Link href="/jobs" className="block text-gray-100 hover:text-blue-400" onClick={() => setOpen(false)}>
                 Ажил
               </Link>
               <button
@@ -152,15 +140,9 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
           ) : (
             <>
               {!isJobsPage && (
-                <>
-                  <Link
-                    href="/jobs"
-                    className="block text-gray-100 hover:text-blue-400"
-                    onClick={() => setOpen(false)}
-                  >
-                    Ажил
-                  </Link>
-                </>
+                <Link href="/jobs" className="block text-gray-100 hover:text-blue-400" onClick={() => setOpen(false)}>
+                  Ажил
+                </Link>
               )}
               <button
                 onClick={() => {
