@@ -30,11 +30,11 @@ export default function EmployerAuth() {
         .eq("email", email)
         .eq("password", password)
         .single();
-
+        
+      if (!data) return setError("Имэйл эсвэл нууц үг буруу байна!");
       localStorage.setItem("employer_user_id", data.id);// localStorage-д хадгалах
       sessionStorage.setItem("employer_user_id", data.id); 
 
-      if (!data) return setError("Имэйл эсвэл нууц үг буруу байна!");
 
       // Амжилттай нэвтрэх
       setSuccessMessage("Амжилттай нэвтэрлээ!");
