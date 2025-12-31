@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SuccessModal from "@/components/SuccessModal";
 import FailedModal from "@/components/FailedModal";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -11,7 +11,7 @@ interface Job {
   location: string;
   description: string;
   salary?: string | null;
-  employer_company?: string | null;
+  employer_company?: string | null; // ID
   job_type?: string | null;
   work_schedule?: string | null;
   requirements?: string | null;
@@ -30,8 +30,30 @@ const supabase = createClientComponentClient(); // Supabase client
 const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [companyName, setCompanyName] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  // 🔹 Modal нээгдсэн үед компанийн нэрийг fetch хийх
+  useEffect(() => {
+    if (!isOpen || !job.employer_company) return;
+
+    const fetchCompanyName = async () => {
+      const { data, error } = await supabase
+        .from('employer_accounts')
+        .select('company_name')
+        .eq('id', job.employer_company)
+        .single();
+
+      if (error) {
+        console.error('Error fetching company name:', error);
+        setCompanyName('Мэдээлэл олдсонгүй');
+        return;
+      }
+
+      setCompanyName(data.company_name);
+    };
+
+    fetchCompanyName();
+  }, [job.employer_company, isOpen]);
 
   const handleApply = async () => {
     const userId = sessionStorage.getItem("userId");
@@ -73,6 +95,7 @@ const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
     }
   };
 
+  if (!isOpen) return null;
 
   return (
     <>
@@ -103,9 +126,9 @@ const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
               📍 Байршил: <span className="text-red-400">{job.location}</span>
             </p>
 
-            {job.employer_company && (
+            {companyName && (
               <p className="text-gray-300">
-                🏢 Компани: <span className="text-blue-300">{job.employer_company}</span>
+                🏢 Компани: <span className="text-blue-300">{companyName}</span>
               </p>
             )}
 
