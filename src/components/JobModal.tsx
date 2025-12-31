@@ -43,9 +43,20 @@ const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
     }
 
     try {
-      const { data, error } = await supabase
-        .from('jobs_request')
-        .insert([{ user_id: userId, job_id: job.id }]);
+      const requestId = crypto.randomUUID(); // 🔥 random UUID
+
+      const { error } = await supabase
+        .from('open_request')
+        .insert([
+          {
+            requestid: requestId,
+            jobid: job.id,
+            workerid: userId,
+            status: 'pending',
+            valid: true
+            // createdate, updatedate → DB default
+          }
+        ]);
 
       if (error) throw error;
 
@@ -54,12 +65,14 @@ const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
         setShowSuccess(false);
         onClose();
       }, 1500);
+
     } catch (err) {
-      console.error("Insert error:", err);
+      console.log('Error applying for job:', err);
       setShowError(true);
       setTimeout(() => setShowError(false), 1500);
     }
   };
+
 
   return (
     <>
