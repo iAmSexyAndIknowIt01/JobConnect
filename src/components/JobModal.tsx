@@ -31,10 +31,39 @@ const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [companyName, setCompanyName] = useState<string | null>(null);
+  const [requestStatus, setRequestStatus] = useState<string | null>(null);
+  const [canApply, setCanApply] = useState<boolean>(true);
+
 
   // 🔹 Modal нээгдсэн үед компанийн нэрийг fetch хийх
   useEffect(() => {
     if (!isOpen || !job.employer_company) return;
+    const userId = sessionStorage.getItem("userId");
+    if (!userId) return;
+
+    const fetchRequestStatus = async () => {
+      const { data, error } = await supabase
+        .from("open_request")
+        .select("status")
+        .eq("jobid", job.id)
+        .eq("workerid", userId)
+        .limit(1) 
+        .maybeSingle();
+
+        if (error) {
+          console.error("Error fetching request status:", error);
+          return;
+        }
+
+        if (data?.status) {
+          setRequestStatus(data.status);
+          setCanApply(false);
+        } else {
+          setRequestStatus(null);
+          setCanApply(true);
+        }
+    };
+    fetchRequestStatus();  
 
     const fetchCompanyName = async () => {
       const { data, error } = await supabase
@@ -176,13 +205,26 @@ const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
             )}
 
             <div className="pt-4">
-              <button
-                onClick={handleApply}
-                className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 font-semibold text-lg"
-              >
-                Ажилд хүсэлт илгээх
-              </button>
+              {canApply ? (
+                <button
+                  onClick={handleApply}
+                  className="w-full py-3 bg-green-600 text-white rounded-lg
+                            hover:bg-green-700 transition duration-300
+                            font-semibold text-lg"
+                >
+                  Ажилд хүсэлт илгээх
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="w-full py-3 bg-gray-600 text-gray-300 rounded-lg
+                            cursor-not-allowed font-semibold text-lg"
+                >
+                  {requestStatus}
+                </button>
+              )}
             </div>
+
           </div>
         </div>
       </div>
