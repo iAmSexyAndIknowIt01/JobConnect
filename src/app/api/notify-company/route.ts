@@ -60,18 +60,19 @@ export async function POST(req: Request) {
     const companyName = employer.company_name;
     const companyEmail = employer.email;
 
-    // 4️⃣ SMTP тохиргоо (self-signed сертификаттай холбогдох боломжтой)
+    // 🌟 Environment-д тохиргоо
+    const isDev = process.env.NODE_ENV !== "production";
+
+    // 4️⃣ SMTP тохиргоо
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST!,
       port: Number(process.env.SMTP_PORT!),
-      secure: false, // TLS ашиглана
+      secure: !isDev, // Production-д secure=true, dev-д false
       auth: {
         user: process.env.SMTP_USER!,
         pass: process.env.SMTP_PASS!,
       },
-      tls: {
-        rejectUnauthorized: false, // 🔹 self-signed сертификат зөвшөөрнө
-      },
+      tls: isDev ? { rejectUnauthorized: false } : undefined, // dev-д self-signed зөвшөөрнө
     });
 
     // 5️⃣ Email илгээх
