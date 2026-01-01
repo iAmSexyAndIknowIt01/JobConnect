@@ -110,6 +110,15 @@ const JobModal: React.FC<JobModalProps> = ({ job, isOpen, onClose }) => {
         ]);
 
       if (error) throw error;
+      // 📧 Компанид email илгээх
+      await fetch("/api/notify-company", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId }),
+      });
+
+      setRequestStatus("pending");
+      setCanApply(false);
 
       setShowSuccess(true);
       setTimeout(() => {
