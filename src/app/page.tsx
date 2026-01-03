@@ -6,8 +6,9 @@ import HowItWorksSection from "@/components/HowItWorksSection";
 import StatsSection from "@/components/StatsSection";
 import { Metadata } from "next";
 
+<meta name="Work in Japan | MStaffing" content="MStaffing нь Японд ажиллах Монгол иргэдийг ажил олгогч нартай холбох технологид суурилсан платформ юм." />
 export const metadata: Metadata = {
-  title: 'Японд ажил хайх | MStaffing',
+  title: 'Work in Japan | MStaffing',
   description: 'Ур чадвар, хүсэл мөрөөдлөөрөө тохирсон ажлаа хайж, шинэ боломжуудыг нээцгээе. MStaffing нь Японд ажиллах Монгол иргэдийг ажил олгогч нартай холбох технологид суурилсан платформ юм.',
   keywords: ['Японд ажил хайх', 'Japan job', 'MStaffing', 'Монгол ажил хайгч', 'Ажил олгогч', 'Hiring platform', 'Career in Japan', 'Job search', 'Монгол Япон ажил', 'Remote work Japan', 'Tech jobs Japan', 'Job portal', 'Employment Japan', 'Work in Japan', 'Job listings Japan', 'MStaffing Japan'],
   openGraph: {
