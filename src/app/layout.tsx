@@ -35,6 +35,12 @@ export default function RootLayout({
 
   return (
     <html lang="mn">
+      <head>
+        {/* Favicon */}
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.svg" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      </head>
       <body className="flex flex-col bg-gray-50 text-gray-900 min-h-screen">
         {/* Header / Navbar */}
         <Navbar
