@@ -32,7 +32,12 @@ export const metadata: Metadata = {
   },
   authors: [{ name: 'MStaffing Team', url: 'https://job-connect-chi.vercel.app' }],
   creator: 'MStaffing',
-  publisher: 'MStaffing',  
+  publisher: 'MStaffing',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-32x32.svg',
+    apple: '/favicon.svg',
+  },
 }
 
 export default function HomePage() {
