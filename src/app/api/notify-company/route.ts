@@ -77,16 +77,16 @@ export async function POST(req: Request) {
 
     // 5️⃣ Email илгээх
     await transporter.sendMail({
-      from: `"JobConnect" <${process.env.SMTP_USER}>`,
+      from: `"MStaffing" <${process.env.SMTP_USER}>`,
       to: companyEmail,
       subject: "Шинэ ажилд хүсэлт ирлээ",
       html: `
         <h3>Сайн байна уу, ${companyName}</h3>
         <p><b>${jobTitle}</b> ажилд шинэ хүсэлт ирлээ.</p>
         <p>${jobDescription}</p>
-        <p>JobConnect системд нэвтэрч дэлгэрэнгүйг шалгана уу.</p>
+        <p>MStaffing системд нэвтэрч дэлгэрэнгүйг шалгана уу.</p>
         <br />
-        <small>JobConnect</small>
+        <small>MStaffing</small>
       `,
     });
 

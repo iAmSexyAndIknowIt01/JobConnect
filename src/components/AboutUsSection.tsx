@@ -81,7 +81,7 @@ export default function AboutUsSection() {
           viewport={{ once: true }}
           className="text-lg text-gray-300 leading-relaxed text-center max-w-3xl mx-auto mb-20"
         >
-          JobConnect нь Японд ажиллах Монгол иргэдийг ажил олгогч нартай холбох
+          MStaffing нь Японд ажиллах Монгол иргэдийг ажил олгогч нартай холбох
           технологид суурилсан платформ бөгөөд ажил хайх болон hiring процессийг
           илүү ухаалаг, илүү хурдтай, илүү найдвартай болгодог.
         </motion.p>
@@ -134,7 +134,7 @@ export default function AboutUsSection() {
           viewport={{ once: true }}
           className="text-center text-lg mt-20 text-gray-400 max-w-4xl mx-auto leading-relaxed"
         >
-          JobConnect — Японд ажиллах Монгол иргэдийн карьерын хөгжлийг технологиор дэмжинэ.
+          Mstaffing — Японд ажиллах Монгол иргэдийн карьерын хөгжлийг технологиор дэмжинэ.
         </motion.p>
         
       </div>

@@ -93,7 +93,7 @@ export default function PostJob() {
                             value={jobData.companyName}
                             onChange={handleChange}
                             required
-                            placeholder="Жишээ: JobConnect Co., Ltd"
+                            placeholder="Жишээ: Mstaffing Co., Ltd"
                             className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
                         />
                     </div>

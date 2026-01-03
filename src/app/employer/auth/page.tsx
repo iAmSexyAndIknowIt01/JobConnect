@@ -110,7 +110,7 @@ export default function EmployerAuth() {
           <div className="relative z-10 text-white flex flex-col justify-between h-full">
             <div>
               <h1 className="text-6xl font-extrabold tracking-tight">
-                JobConnect <span className="text-emerald-400">Pro</span>
+                MStaffing <span className="text-emerald-400">Pro</span>
               </h1>
               <p className="max-w-lg mt-4 text-lg text-emerald-100/80 leading-relaxed">
                 Монгол — Японы ажлын зах зээлд чиглэсэн  
@@ -133,7 +133,7 @@ export default function EmployerAuth() {
               </div>
             </div>
 
-            <p className="text-emerald-200/60 mt-10">© 2025 JobConnect Emerald Edition</p>
+            <p className="text-emerald-200/60 mt-10">© 2025 MStaffing Emerald Edition</p>
           </div>
         </div>
 

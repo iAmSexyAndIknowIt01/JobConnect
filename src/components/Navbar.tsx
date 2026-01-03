@@ -43,7 +43,7 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
           onClick={handleLogoClick}
           className="text-2xl font-semibold text-white tracking-wide focus:outline-none"
         >
-          <span className="text-blue-400">Job</span>Connect
+          <span className="text-blue-400">M</span>Staffing
         </button>
 
         {/* Desktop Navigation */}
