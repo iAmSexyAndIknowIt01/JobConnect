@@ -62,6 +62,11 @@ export async function POST(req: Request) {
     // 🌍 Environment
     const isDev = process.env.NODE_ENV !== "production";
     const port = Number(process.env.SMTP_PORT);
+    console.log("SMTP_PORT:", process.env.NODE_ENV);
+    console.log("isDev:", process.env.NODE_ENV);
+    console.log("HOST:", process.env.SMTP_HOST);
+    console.log("USER:", process.env.SMTP_USER);
+    console.log("PASS:", process.env.SMTP_PASS ? "******" : "NOT SET");
 
     // 4️⃣ SMTP transporter (🔥 хамгийн чухал хэсэг)
     const transporter = nodemailer.createTransport({
