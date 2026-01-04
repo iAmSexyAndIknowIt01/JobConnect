@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 import { createClient } from "@supabase/supabase-js";
+import { Resend } from "resend";
 
 export async function POST(req: Request) {
   try {
@@ -59,32 +59,12 @@ export async function POST(req: Request) {
     const { title, description } = job;
     const { company_name, email } = employer;
 
-    // 🌍 Environment
-    const isDev = process.env.NODE_ENV !== "production";
-    const port = Number(process.env.SMTP_PORT);
-    console.log("SMTP_PORT:", process.env.NODE_ENV);
-    console.log("isDev:", process.env.NODE_ENV);
-    console.log("HOST:", process.env.SMTP_HOST);
-    console.log("USER:", process.env.SMTP_USER);
-    console.log("PASS:", process.env.SMTP_PASS ? "******" : "NOT SET");
+    // 🔥 Resend client
+    const resend = new Resend(process.env.RESEND_API_KEY!);
 
-    // 4️⃣ SMTP transporter (🔥 хамгийн чухал хэсэг)
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST!,
-      port,
-      secure: port === 465, // ✅ ЗӨВ ЛОГИК (NODE_ENV биш)
-      auth: {
-        user: process.env.SMTP_USER!,
-        pass: process.env.SMTP_PASS!,
-      },
-      ...(isDev && {
-        tls: { rejectUnauthorized: false }, // local/dev дээр OK
-      }),
-    });
-
-    // 5️⃣ Mail илгээх
-    const info = await transporter.sendMail({
-      from: process.env.SMTP_USER, // 🔥 provider-д хамгийн найдвартай
+    // 4️⃣ Mail илгээх (SMTP ❌, Resend ✅)
+    const { data, error } = await resend.emails.send({
+      from: "MStaffing <onboarding@resend.dev>", // domain баталгаажаагүй үед
       to: email,
       subject: "Шинэ ажилд хүсэлт ирлээ",
       html: `
@@ -97,7 +77,12 @@ export async function POST(req: Request) {
       `,
     });
 
-    console.log("✅ Mail sent:", info.messageId);
+    if (error) {
+      console.error("❌ Resend error:", error);
+      return NextResponse.json({ error }, { status: 500 });
+    }
+
+    console.log("✅ Mail sent via Resend:", data?.id);
 
     return NextResponse.json({ success: true });
   } catch (err) {
