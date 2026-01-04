@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // 1️⃣ open_request → jobid авах
+    // 1️⃣ open_request → jobid
     const { data: request, error: reqError } = await supabase
       .from("open_request")
       .select("jobid")
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Request not found" }, { status: 404 });
     }
 
-    // 2️⃣ open_jobs → job мэдээлэл авах
+    // 2️⃣ open_jobs → job info
     const { data: job, error: jobError } = await supabase
       .from("open_jobs")
       .select("title, description, employer_company")
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
-    // 3️⃣ employer_accounts → company info авах
+    // 3️⃣ employer_accounts → company info
     const { data: employer, error: empError } = await supabase
       .from("employer_accounts")
       .select("company_name, email")
@@ -55,44 +55,51 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Employer not found" }, { status: 404 });
     }
 
-    const jobTitle = job.title;
-    const jobDescription = job.description;
-    const companyName = employer.company_name;
-    const companyEmail = employer.email;
+    // 📩 Mail data
+    const { title, description } = job;
+    const { company_name, email } = employer;
 
-    // 🌟 Environment-д тохиргоо
+    // 🌍 Environment
     const isDev = process.env.NODE_ENV !== "production";
+    const port = Number(process.env.SMTP_PORT);
 
-    // 4️⃣ SMTP тохиргоо
+    // 4️⃣ SMTP transporter (🔥 хамгийн чухал хэсэг)
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST!,
-      port: Number(process.env.SMTP_PORT!),
-      secure: !isDev, // Production-д secure=true, dev-д false
+      port,
+      secure: port === 465, // ✅ ЗӨВ ЛОГИК (NODE_ENV биш)
       auth: {
         user: process.env.SMTP_USER!,
         pass: process.env.SMTP_PASS!,
       },
-      tls: isDev ? { rejectUnauthorized: false } : undefined, // dev-д self-signed зөвшөөрнө
+      ...(isDev && {
+        tls: { rejectUnauthorized: false }, // local/dev дээр OK
+      }),
     });
 
-    // 5️⃣ Email илгээх
-    await transporter.sendMail({
-      from: `"MStaffing" <${process.env.SMTP_USER}>`,
-      to: companyEmail,
+    // 5️⃣ Mail илгээх
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_USER, // 🔥 provider-д хамгийн найдвартай
+      to: email,
       subject: "Шинэ ажилд хүсэлт ирлээ",
       html: `
-        <h3>Сайн байна уу, ${companyName}</h3>
-        <p><b>${jobTitle}</b> ажилд шинэ хүсэлт ирлээ.</p>
-        <p>${jobDescription}</p>
+        <h3>Сайн байна уу, ${company_name}</h3>
+        <p><b>${title}</b> ажилд шинэ хүсэлт ирлээ.</p>
+        <p>${description}</p>
         <p>MStaffing системд нэвтэрч дэлгэрэнгүйг шалгана уу.</p>
         <br />
         <small>MStaffing</small>
       `,
     });
 
+    console.log("✅ Mail sent:", info.messageId);
+
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Notify company error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("❌ Notify company error:", err);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
