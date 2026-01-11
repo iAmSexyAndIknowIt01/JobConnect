@@ -49,7 +49,22 @@ export default function HeroSection() {
       <div className="relative flex h-full flex-col md:flex-row">
         {/* SLIDER (DESKTOP ONLY) */}
         <div className="hidden md:flex md:w-[70%] items-center justify-center">
-          <div className="relative w-[90%] h-[80%] overflow-hidden rounded-3xl shadow-2xl border border-white/10 group">
+          <div
+            className="
+              relative 
+              w-[80%] 
+              h-[70%] 
+              overflow-hidden 
+              rounded-3xl 
+              shadow-2xl 
+              border border-white/10 
+              group
+              scale-95 
+              hover:scale-100 
+              transition-transform 
+              duration-500
+            "
+          >
             <div
               className="flex h-full transition-transform duration-700 ease-in-out"
               style={{ transform: `translateX(-${current * 100}%)` }}

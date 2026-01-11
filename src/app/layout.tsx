@@ -42,7 +42,7 @@ export default function RootLayout({
         {/* <link rel="icon" type="image/svg+xml" href="/favicon.svg" /> */}
       </head>
       <body className="flex flex-col bg-gray-50 text-gray-900 min-h-screen">
-        {/* Header / Navbar */}
+        {/* Floating Navbar */}
         <Navbar
           isLoggedIn={isLoggedIn}
           onAuthOpen={() => setModalOpen(true)}
@@ -50,7 +50,10 @@ export default function RootLayout({
         />
 
         {/* Гол контент */}
-        <main className="grow">{children}<Analytics /></main>
+        <main className="grow">
+          {children}
+          <Analytics />
+        </main>
 
         {/* Auth Modal */}
         <AuthModal

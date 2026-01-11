@@ -28,39 +28,47 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Logo дээр дарах үед session clear болон landing page рүү шилжүүлэх
+  // Logo click
   const handleLogoClick = () => {
-    sessionStorage.clear(); // session устгах
-    router.push("/");        // landing page рүү
+    sessionStorage.clear();
+    router.push("/");
+    setOpen(false);
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-lg border-b border-white/20">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <header
+      className="
+        fixed top-4 left-1/2 -translate-x-1/2 z-50
+        w-[95%] max-w-7xl
+        backdrop-blur-md bg-white/10
+        border border-white/20
+        shadow-lg rounded-2xl
+      "
+    >
+      <div className="px-6 py-4 flex items-center justify-between text-white">
 
         {/* Logo */}
         <button
           onClick={handleLogoClick}
-          className="text-2xl font-semibold text-white tracking-wide focus:outline-none"
+          className="text-2xl font-semibold tracking-wide focus:outline-none"
         >
           <span className="text-blue-400">M</span>Staffing
         </button>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex gap-6 text-gray-100 font-medium items-center">
-
+        <nav className="hidden md:flex gap-6 font-medium items-center">
           {isHomePage && (
             <>
-              <button onClick={() => scrollTo("about-us")} className="hover:text-blue-500">
+              <button onClick={() => scrollTo("about-us")} className="hover:text-blue-400">
                 Бидний тухай
               </button>
-              <button onClick={() => scrollTo("features")} className="hover:text-blue-500">
+              <button onClick={() => scrollTo("features")} className="hover:text-blue-400">
                 Бидний давуу тал
               </button>
-              <button onClick={() => scrollTo("how-it-works")} className="hover:text-blue-500">
+              <button onClick={() => scrollTo("how-it-works")} className="hover:text-blue-400">
                 How it works
               </button>
-              <button onClick={() => scrollTo("contact-us")} className="hover:text-blue-500">
+              <button onClick={() => scrollTo("contact-us")} className="hover:text-blue-400">
                 Холбоо барих
               </button>
             </>
@@ -76,12 +84,21 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
                   >
                     ☰
                   </button>
+
                   {open && (
-                    <div className="absolute right-0 mt-2 bg-gray-800 rounded-md shadow-lg w-40 text-sm">
-                      <Link href="/profile" className="block px-4 py-2 hover:bg-gray-700" onClick={() => setOpen(false)}>
+                    <div className="absolute right-0 mt-3 bg-gray-900/90 backdrop-blur-md rounded-xl shadow-xl w-40 text-sm overflow-hidden">
+                      <Link
+                        href="/profile"
+                        className="block px-4 py-2 hover:bg-white/10"
+                        onClick={() => setOpen(false)}
+                      >
                         Профайл
                       </Link>
-                      <Link href="/jobs" className="block px-4 py-2 hover:bg-gray-700" onClick={() => setOpen(false)}>
+                      <Link
+                        href="/jobs"
+                        className="block px-4 py-2 hover:bg-white/10"
+                        onClick={() => setOpen(false)}
+                      >
                         Ажил
                       </Link>
                       <button
@@ -89,7 +106,7 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
                           onLogout();
                           setOpen(false);
                         }}
-                        className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                        className="block w-full text-left px-4 py-2 hover:bg-white/10"
                       >
                         Гарах
                       </button>
@@ -99,7 +116,7 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
               ) : (
                 <button
                   onClick={onAuthOpen}
-                  className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-md font-semibold transition"
+                  className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-full font-semibold transition"
                 >
                   Нэвтрэх / Бүртгүүлэх
                 </button>
@@ -110,7 +127,10 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
 
         {/* Mobile Menu Icon */}
         {!isHomePage && (
-          <button onClick={() => setOpen(!open)} className="md:hidden text-gray-100 hover:text-blue-400">
+          <button
+            onClick={() => setOpen(!open)}
+            className="md:hidden hover:text-blue-400"
+          >
             <Menu size={26} />
           </button>
         )}
@@ -118,13 +138,13 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
 
       {/* Mobile Menu */}
       {open && !isHomePage && (
-        <div className="md:hidden bg-black/70 backdrop-blur-md py-4 px-6 space-y-3">
+        <div className="md:hidden bg-black/80 backdrop-blur-md px-6 py-4 space-y-3 rounded-b-2xl">
           {isLoggedIn ? (
             <>
-              <Link href="/profile" className="block text-gray-100 hover:text-blue-400" onClick={() => setOpen(false)}>
+              <Link href="/profile" className="block hover:text-blue-400" onClick={() => setOpen(false)}>
                 Профайл
               </Link>
-              <Link href="/jobs" className="block text-gray-100 hover:text-blue-400" onClick={() => setOpen(false)}>
+              <Link href="/jobs" className="block hover:text-blue-400" onClick={() => setOpen(false)}>
                 Ажил
               </Link>
               <button
@@ -132,7 +152,7 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
                   onLogout();
                   setOpen(false);
                 }}
-                className="block w-full text-left text-gray-100 hover:text-blue-400"
+                className="block w-full text-left hover:text-blue-400"
               >
                 Гарах
               </button>
@@ -140,7 +160,7 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
           ) : (
             <>
               {!isJobsPage && (
-                <Link href="/jobs" className="block text-gray-100 hover:text-blue-400" onClick={() => setOpen(false)}>
+                <Link href="/jobs" className="block hover:text-blue-400" onClick={() => setOpen(false)}>
                   Ажил
                 </Link>
               )}
