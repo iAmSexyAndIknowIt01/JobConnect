@@ -46,7 +46,6 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
       "
     >
       <div className="px-6 py-4 flex items-center justify-between text-white">
-
         {/* Logo */}
         <button
           onClick={handleLogoClick}
@@ -86,7 +85,7 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
                   </button>
 
                   {open && (
-                    <div className="absolute right-0 mt-3 bg-gray-900/90 backdrop-blur-md rounded-xl shadow-xl w-40 text-sm overflow-hidden">
+                    <div className="absolute right-0 mt-3 bg-gray-900/90 backdrop-blur-md rounded-xl shadow-xl w-44 text-sm overflow-hidden">
                       <Link
                         href="/profile"
                         className="block px-4 py-2 hover:bg-white/10"
@@ -94,6 +93,16 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
                       >
                         Профайл
                       </Link>
+
+                      {/* ✅ Миний CV */}
+                      <Link
+                        href="/cv/create"
+                        className="block px-4 py-2 hover:bg-white/10"
+                        onClick={() => setOpen(false)}
+                      >
+                        Миний CV
+                      </Link>
+
                       <Link
                         href="/jobs"
                         className="block px-4 py-2 hover:bg-white/10"
@@ -101,6 +110,7 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
                       >
                         Ажил
                       </Link>
+
                       <button
                         onClick={() => {
                           onLogout();
@@ -141,12 +151,31 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
         <div className="md:hidden bg-black/80 backdrop-blur-md px-6 py-4 space-y-3 rounded-b-2xl">
           {isLoggedIn ? (
             <>
-              <Link href="/profile" className="block hover:text-blue-400" onClick={() => setOpen(false)}>
+              <Link
+                href="/profile"
+                className="block hover:text-blue-400"
+                onClick={() => setOpen(false)}
+              >
                 Профайл
               </Link>
-              <Link href="/jobs" className="block hover:text-blue-400" onClick={() => setOpen(false)}>
+
+              {/* ✅ Миний CV (Mobile) */}
+              <Link
+                href="/cv/create"
+                className="block hover:text-blue-400"
+                onClick={() => setOpen(false)}
+              >
+                Миний CV
+              </Link>
+
+              <Link
+                href="/jobs"
+                className="block hover:text-blue-400"
+                onClick={() => setOpen(false)}
+              >
                 Ажил
               </Link>
+
               <button
                 onClick={() => {
                   onLogout();
@@ -160,7 +189,11 @@ export default function Navbar({ isLoggedIn, onAuthOpen, onLogout }: NavbarProps
           ) : (
             <>
               {!isJobsPage && (
-                <Link href="/jobs" className="block hover:text-blue-400" onClick={() => setOpen(false)}>
+                <Link
+                  href="/jobs"
+                  className="block hover:text-blue-400"
+                  onClick={() => setOpen(false)}
+                >
                   Ажил
                 </Link>
               )}
